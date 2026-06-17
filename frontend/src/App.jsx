@@ -12,6 +12,9 @@ import MyTickets from "./pages/MyTickets";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import Notifications from "./pages/Notifications";
 import Analytics from "./pages/Analytics";
+import CreateEvent from "./pages/CreateEvent";
+import Reports from "./pages/Reports";
+import Profile from "./pages/Profile";
 
 function App() {
   return (
@@ -65,6 +68,32 @@ function App() {
   }
 />
         
+        <Route
+  path="/create-event"
+  element={
+    <ProtectedRoute>
+      <CreateEvent />
+    </ProtectedRoute>
+  }
+/>
+
+        <Route
+  path="/reports"
+  element={
+    <ProtectedRoute>
+      <Reports />
+    </ProtectedRoute>
+  }
+/>
+        <Route
+  path="/profile"
+  element={
+    <ProtectedRoute>
+      <Profile />
+    </ProtectedRoute>
+  }
+/>
+
         <Route
           path="/"
           element={

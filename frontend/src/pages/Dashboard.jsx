@@ -1,4 +1,5 @@
-import Navbar from "../components/Navbar";
+import Navbar
+from "../components/Navbar";
 
 function Dashboard() {
   return (
@@ -6,8 +7,20 @@ function Dashboard() {
       <Navbar />
 
       <h1>
-        Dashboard
+        EventHub Dashboard
       </h1>
+
+      <p>
+        Welcome to EventHub
+      </p>
+
+      <p>
+        Use the navigation
+        menu above to access
+        Events, Tickets,
+        Analytics and Reports.
+      </p>
+
     </>
   );
 }
