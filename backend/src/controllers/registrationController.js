@@ -1,6 +1,7 @@
 const Registration = require("../models/Registration");
 const Event = require("../models/Event");
 const Ticket = require("../models/Ticket");
+const QRCode = require("qrcode");
 
 exports.registerForEvent = async (req, res) => {
   try {
@@ -32,13 +33,12 @@ exports.registerForEvent = async (req, res) => {
         eventId,
       });
     
+    const ticketId = "TICKET-" + Date.now();
+    const qrCode = await QRCode.toDataURL(ticketId);
     const ticket = await Ticket.create({
-  ticketId:
-    "TICKET-" +
-    Date.now(),
-
+  ticketId,
+  qrCode,
   userId: req.user._id,
-
   eventId,
 });
 
