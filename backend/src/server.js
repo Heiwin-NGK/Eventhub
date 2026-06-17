@@ -13,7 +13,7 @@ const registrationRoutes = require("./routes/registrationRoutes");
 const ticketRoutes = require("./routes/ticketRoutes");
 const verificationRoutes =  require("./routes/verificationRoutes");
 const attendanceRoutes = require("./routes/attendanceRoutes");
-
+const analyticsRoutes = require("./routes/analyticsRoutes");
 connectDB();
 
 app.use(cors());
@@ -23,6 +23,7 @@ app.use("/api/verify", verificationRoutes);
 app.use("/api/tickets", ticketRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/attendance", attendanceRoutes);
+app.use("/api/analytics", analyticsRoutes);
 app.use("/api/registrations", registrationRoutes);
 
 app.get("/", (req, res) => {
