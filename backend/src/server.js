@@ -14,17 +14,22 @@ const ticketRoutes = require("./routes/ticketRoutes");
 const verificationRoutes =  require("./routes/verificationRoutes");
 const attendanceRoutes = require("./routes/attendanceRoutes");
 const analyticsRoutes = require("./routes/analyticsRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
+const reportRoutes = require("./routes/reportRoutes");
+
 connectDB();
 
 app.use(cors());
 app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/verify", verificationRoutes);
+app.use("/api/notifications", notificationRoutes);
 app.use("/api/tickets", ticketRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/attendance", attendanceRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/registrations", registrationRoutes);
+app.use("/api/reports", reportRoutes);
 
 app.get("/", (req, res) => {
   res.send("EventHub Backend Running");
