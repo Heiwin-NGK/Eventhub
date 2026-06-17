@@ -1,5 +1,6 @@
 const Registration = require("../models/Registration");
 const Event = require("../models/Event");
+const Ticket = require("../models/Ticket");
 
 exports.registerForEvent = async (req, res) => {
   try {
@@ -30,8 +31,18 @@ exports.registerForEvent = async (req, res) => {
         userId: req.user._id,
         eventId,
       });
+    
+    const ticket = await Ticket.create({
+  ticketId:
+    "TICKET-" +
+    Date.now(),
 
-    res.status(201).json(registration);
+  userId: req.user._id,
+
+  eventId,
+});
+
+    res.status(201).json({ registration, ticket });
 
   } catch (error) {
     res.status(500).json({
