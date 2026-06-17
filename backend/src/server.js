@@ -8,7 +8,6 @@ const connectDB = require("./config/db");
 const app = express();
 
 const authRoutes = require("./routes/authRoutes");
-console.log("authRoutes:", authRoutes);
 
 connectDB();
 

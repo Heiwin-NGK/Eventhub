@@ -89,3 +89,9 @@ exports.loginUser = async (req, res) => {
     });
   }
 };
+
+exports.getMe = async (req, res) => {
+  console.log("req.user =", req.user);
+
+  return res.status(200).json(req.user);
+};
