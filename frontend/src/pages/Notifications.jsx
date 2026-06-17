@@ -5,6 +5,7 @@ import Navbar from "../components/Navbar";
 function Notifications() {
   const [notifications, setNotifications] =
     useState([]);
+    const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchNotifications();
@@ -12,6 +13,7 @@ function Notifications() {
 
   const fetchNotifications = async () => {
     try {
+        setLoading(true);
       const token =
         localStorage.getItem("token");
 
@@ -31,12 +33,22 @@ function Notifications() {
       );
 
     } catch (error) {
-      console.log(error);
-    }
+
+    alert(
+      error.response?.data?.message ||
+      "Something went wrong"
+    );
+
+  } finally {
+
+    setLoading(false);
+
+  }
   };
 
   const markAsRead = async (id) => {
     try {
+        setLoading(true);
       const token =
         localStorage.getItem("token");
 
@@ -54,7 +66,12 @@ function Notifications() {
       fetchNotifications();
 
     } catch (error) {
-      console.log(error);
+      alert(
+        error.response?.data?.message ||
+        "Something went wrong"
+      );
+    } finally {
+      setLoading(false);
     }
   };
 

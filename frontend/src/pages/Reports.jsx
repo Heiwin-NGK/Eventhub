@@ -9,10 +9,12 @@ function Reports() {
   const [report, setReport] =
     useState([]);
 
+  const [loading, setLoading] = useState(true);
+
   const fetchRegistrations =
     async () => {
       try {
-
+        setLoading(true);
         const token =
           localStorage.getItem(
             "token"
@@ -34,14 +36,23 @@ function Reports() {
         );
 
       } catch (error) {
-        console.log(error);
-      }
+
+    alert(
+      error.response?.data?.message ||
+      "Something went wrong"
+    );
+
+  } finally {
+
+    setLoading(false);
+
+  }
     };
 
     const downloadCSV =
   async () => {
     try {
-
+        setLoading(true);
       const token =
         localStorage.getItem(
           "token"
@@ -87,7 +98,10 @@ function Reports() {
       link.click();
 
     } catch (error) {
-      console.log(error);
+      alert(
+        error.response?.data?.message ||
+        "Something went wrong"
+      );
     }
   };
 

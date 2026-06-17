@@ -15,6 +15,7 @@ import Analytics from "./pages/Analytics";
 import CreateEvent from "./pages/CreateEvent";
 import Reports from "./pages/Reports";
 import Profile from "./pages/Profile";
+import EditEvent from "./pages/EditEvent";
 
 function App() {
   return (
@@ -103,7 +104,14 @@ function App() {
           }
         />
 
-        
+        <Route
+          path="/edit-event/:id"
+          element={
+            <ProtectedRoute>
+              <EditEvent />
+            </ProtectedRoute>
+          }
+        />
 
       </Routes>
 

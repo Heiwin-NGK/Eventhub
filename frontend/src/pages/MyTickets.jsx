@@ -11,10 +11,8 @@ import Navbar
 
 function MyTickets() {
 
-  const [
-    tickets,
-    setTickets,
-  ] = useState([]);
+  const [ tickets, setTickets, ] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchTickets();
@@ -24,7 +22,7 @@ function MyTickets() {
     async () => {
 
       try {
-
+        setLoading(true);
         const token =
           localStorage.getItem(
             "token"
@@ -46,8 +44,17 @@ function MyTickets() {
         );
 
       } catch (error) {
-        console.log(error);
-      }
+
+    alert(
+      error.response?.data?.message ||
+      "Something went wrong"
+    );
+
+  } finally {
+
+    setLoading(false);
+
+  }
     };
 
   return (

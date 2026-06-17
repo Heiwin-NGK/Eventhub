@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import axios from "../api/axios";
 import Navbar from "../components/Navbar";
+import { Link } from "react-router-dom";
 
 function Events() {
   const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchEvents();
@@ -11,6 +13,7 @@ function Events() {
 
   const fetchEvents = async () => {
     try {
+        setLoading(true);
       const token =
         localStorage.getItem("token");
 
@@ -28,14 +31,24 @@ function Events() {
       setEvents(res.data);
 
     } catch (error) {
-      console.log(error);
-    }
+
+    alert(
+      error.response?.data?.message ||
+      "Something went wrong"
+    );
+
+  } finally {
+
+    setLoading(false);
+
+  }
   };
 
   const registerEvent = async (
   eventId
 ) => {
   try {
+    setLoading(true);
 
     const token =
       localStorage.getItem(
@@ -72,6 +85,38 @@ function Events() {
   }
 };
 
+const deleteEvent = async (id) => {
+  try {
+    setLoading(true);
+
+    const token =
+      localStorage.getItem("token");
+
+    await axios.delete(
+      `/events/${id}`,
+      {
+        headers: {
+          Authorization:
+            `Bearer ${token}`,
+        },
+      }
+    );
+
+    alert("Event Deleted");
+
+    fetchEvents();
+
+  } catch (error) {
+    alert(
+      error.response?.data?.message ||
+      "Delete Failed"
+    );
+  }
+};
+
+if (loading)
+  return <h2>Loading...</h2>;
+
   return (
     <>
       <Navbar />
@@ -104,6 +149,10 @@ function Events() {
           </p>
           <button onClick={() => registerEvent(event._id)}
 >  Register </button>
+          <Link to={`/edit-event/${event._id}`
+        }> Edit </Link>
+          <button onClick={() => deleteEvent(event._id)}
+>  Delete </button>
         </div>
       ))}
     </div>

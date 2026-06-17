@@ -13,6 +13,7 @@ function Analytics() {
 
   const [stats, setStats] =
     useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchStats();
@@ -22,6 +23,7 @@ function Analytics() {
     async () => {
 
       try {
+        setLoading(true);
 
         const token =
           localStorage.getItem(
@@ -44,8 +46,17 @@ function Analytics() {
         );
 
       } catch (error) {
-        console.log(error);
-      }
+
+    alert(
+      error.response?.data?.message ||
+      "Something went wrong"
+    );
+
+  } finally {
+
+    setLoading(false);
+
+  }
     };
 
   if (!stats)
