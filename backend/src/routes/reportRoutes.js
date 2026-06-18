@@ -1,7 +1,6 @@
 const express = require("express");
-
+const { authorize } = require("../middleware/roleMiddleware");
 const router = express.Router();
-
 const {
   getRegistrationReport,
   getAttendanceReport,
@@ -9,7 +8,6 @@ const {
 } = require(
   "../controllers/reportController"
 );
-
 const {
   protect,
 } = require(
@@ -19,18 +17,21 @@ const {
 router.get(
   "/registrations/:eventId",
   protect,
+  authorize("admin", "organizer"),
   getRegistrationReport
 );
 
 router.get(
   "/attendance/:eventId",
   protect,
+  authorize("admin", "organizer"),
   getAttendanceReport
 );
 
 router.get(
   "/registrations-csv/:eventId",
   protect,
+  authorize("admin", "organizer"),
   exportRegistrationsCSV
 );
 

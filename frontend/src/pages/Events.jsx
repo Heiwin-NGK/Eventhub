@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
-import axios from "../api/axios";
+import eventService from "../services/eventService";
+import registrationService from "../services/registrationService";
+import Loader from "../components/Loader";
+import EmptyState from "../components/EmptyState";
 import Navbar from "../components/Navbar";
 import { Link } from "react-router-dom";
 import { getErrorMessage } from "../utils/errorHandler";
@@ -20,16 +23,7 @@ function Events() {
       const token =
         localStorage.getItem("token");
 
-      const res =
-        await axios.get(
-          "/events",
-          {
-            headers: {
-              Authorization:
-                `Bearer ${token}`,
-            },
-          }
-        );
+const res = await eventService.getEvents(token);
 
       setEvents(res.data);
 
@@ -54,16 +48,7 @@ function Events() {
       );
 
     const res =
-      await axios.post(
-        `/registrations/${eventId}`,
-        {},
-        {
-          headers: {
-            Authorization:
-              `Bearer ${token}`,
-          },
-        }
-      );
+      await registrationService.registerForEvent(eventId, token);
 
     showSuccess("Successfully Registered for Event");
 
@@ -97,15 +82,7 @@ const deleteEvent = async (id) => {
     const token =
       localStorage.getItem("token");
 
-    await axios.delete(
-      `/events/${id}`,
-      {
-        headers: {
-          Authorization:
-            `Bearer ${token}`,
-        },
-      }
-    );
+    await eventService.deleteEvent(id, token);
 
     showSuccess("Event Deleted Successfully");
 
@@ -125,7 +102,7 @@ setLoading(false);
 };
 
 if (loading)
-  return <h2>Loading...</h2>;
+  return <Loader />;
 
   return (
     <>
@@ -135,7 +112,7 @@ if (loading)
 
       {events.length === 0 ? (
 
-  <h3>No Events Available</h3>
+  <EmptyState title="No Events Available" />
 
 ) : (
 

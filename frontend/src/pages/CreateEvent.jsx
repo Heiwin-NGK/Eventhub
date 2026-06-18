@@ -4,6 +4,8 @@ import Navbar from "../components/Navbar";
 import { getErrorMessage } from "../utils/errorHandler";
 import { showSuccess } from "../utils/successHandler";
 import { validateRequired,validateCapacity,} from "../utils/validation";
+import eventService from "../services/eventService";
+import { SUCCESS_MESSAGES } from "../constants/messages";
 
 function CreateEvent() {
   const [title, setTitle] =
@@ -50,28 +52,9 @@ setLoading(true);
         localStorage.getItem("token");
 
       const res =
-        await axios.post(
-          "/events",
-          {
-            title,
-            description,
-            venue,
-            capacity,
-            eventType: "Workshop",
-            startDate:
-              "2026-12-01",
-            endDate:
-              "2026-12-02",
-          },
-          {
-            headers: {
-              Authorization:
-                `Bearer ${token}`,
-            },
-          }
-        );
+        await eventService.createEvent(data, token);
 
-showSuccess("Event Created Successfully");
+showSuccess(SUCCESS_MESSAGES.EVENT_CREATED);
 
       console.log(
         res.data

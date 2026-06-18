@@ -1,7 +1,4 @@
-import Navbar
-from "../components/Navbar";
-import { getErrorMessage } from "../utils/errorHandler";
-import { showSuccess } from "../utils/successHandler";
+import Navbar from "../components/Navbar";
 
 function Profile() {
 
@@ -12,19 +9,18 @@ function Profile() {
 
   return (
     <>
-      <Navbar />
+  <Navbar />
 
-      <h1>
-        User Profile
-      </h1>
+  <div className="container">
 
-      <p>
-        Logged In
-      </p>
+    <div className="card">
+      <h1>User Profile</h1>
+    </div>
 
-      <p>
-        Token:
-      </p>
+    <div className="card">
+      <p>Logged In</p>
+
+      <p>Token:</p>
 
       <textarea
         rows="6"
@@ -32,8 +28,10 @@ function Profile() {
         readOnly
         value={token}
       />
+    </div>
 
-    </>
+  </div>
+</>
   );
 }
 

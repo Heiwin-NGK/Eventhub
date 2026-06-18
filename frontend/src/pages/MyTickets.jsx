@@ -1,13 +1,9 @@
-import {
-  useEffect,
-  useState,
-} from "react";
-
-import axios
-  from "../api/axios";
-
-import Navbar
-  from "../components/Navbar";
+import { useEffect,useState,} from "react";
+import ticketService from "../services/ticketService";
+import Loader from "../components/Loader";
+import EmptyState from "../components/EmptyState";
+import axios from "../api/axios";
+import Navbar from "../components/Navbar";
 import { getErrorMessage } from "../utils/errorHandler";
 import { showSuccess } from "../utils/successHandler";
 
@@ -31,15 +27,7 @@ function MyTickets() {
           );
 
         const res =
-          await axios.get(
-            "/tickets/my",
-            {
-              headers: {
-                Authorization:
-                  `Bearer ${token}`,
-              },
-            }
-          );
+          await ticketService.getMyTickets(token);
 
         setTickets(
           res.data
@@ -54,7 +42,7 @@ function MyTickets() {
   }
     };
     if(loading)
-return <h2>Loading Tickets...</h2>;
+return <Loader />;
 
   return (
     <>
@@ -66,7 +54,7 @@ return <h2>Loading Tickets...</h2>;
 
       {tickets.length === 0 ? (
 
-<h3>No Tickets Found</h3>
+<EmptyState title="No Tickets Found" />
 
 ) : (
 

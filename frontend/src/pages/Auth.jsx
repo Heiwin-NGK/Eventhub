@@ -1,6 +1,8 @@
 import { useState, useContext } from "react";
 import { useNavigate} from "react-router-dom";
-import axios from "../api/axios";
+import authService from "../services/authService";
+import { ROUTES } from "../constants/routes";
+import { SUCCESS_MESSAGES } from "../constants/messages";
 import { AuthContext } from "../context/AuthContext";
 import { getErrorMessage } from "../utils/errorHandler";
 import { showSuccess } from "../utils/successHandler";
@@ -28,8 +30,6 @@ function Auth() {
   if (loading) return;
   clearFields();
   setIsLogin(mode);
-  // No navigation needed.
-  //  Both forms are on the same page.
   };
 
   const handleSubmit = async (e) => {
@@ -68,24 +68,24 @@ function Auth() {
 
     try {
       if (isLogin) {
-        const res = await axios.post("/auth/login", {
-          email,
-          password,
-        });
+        const res = await authService.login({
+  email,
+  password,
+});
 
         login(res.data);
 
-        showSuccess("Login Successful");
+        showSuccess(SUCCESS_MESSAGES.LOGIN);
 
-        navigate("/");
+navigate(ROUTES.DASHBOARD);
       } else {
-        await axios.post("/auth/register", {
+        await authService.register({
           name,
           email,
           password,
         });
 
-        showSuccess("Registration Successful");
+        showSuccess(SUCCESS_MESSAGES.REGISTER);
         clearFields();
         setIsLogin(true);
       }

@@ -3,6 +3,9 @@ import axios from "../api/axios";
 import Navbar from "../components/Navbar";
 import { getErrorMessage } from "../utils/errorHandler";
 import { showSuccess } from "../utils/successHandler";
+import reportService from "../services/reportService";
+import Loader from "../components/Loader";
+import EmptyState from "../components/EmptyState";
 
 function Reports() {
   const [eventId, setEventId] =
@@ -27,15 +30,7 @@ function Reports() {
           );
 
         const res =
-          await axios.get(
-            `/reports/registrations/${eventId}`,
-            {
-              headers: {
-                Authorization:
-                  `Bearer ${token}`,
-              },
-            }
-          );
+          await reportService.getRegistrations(eventId, token);
 
         setReport(
           res.data
@@ -64,18 +59,7 @@ function Reports() {
         );
 
       const response =
-        await axios.get(
-          `/reports/registrations-csv/${eventId}`,
-          {
-            headers: {
-              Authorization:
-                `Bearer ${token}`,
-            },
-
-            responseType:
-              "blob",
-          }
-        );
+        await reportService.downloadCSV(eventId, token);
 
       const url =
         window.URL.createObjectURL(

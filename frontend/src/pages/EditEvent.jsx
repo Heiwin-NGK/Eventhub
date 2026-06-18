@@ -4,6 +4,8 @@ import axios from "../api/axios";
 import { getErrorMessage } from "../utils/errorHandler";
 import { showSuccess } from "../utils/successHandler";
 import { validateRequired,} from "../utils/validation";
+import eventService from "../services/eventService";
+import Loader from "../components/Loader";
 
 function EditEvent() {
 
@@ -37,15 +39,7 @@ function EditEvent() {
           );
 
         const res =
-          await axios.get(
-            "/events",
-            {
-              headers: {
-                Authorization:
-                  `Bearer ${token}`,
-              },
-            }
-          );
+          await eventService.getEvents(token);
 
         const event =
           res.data.find(
@@ -93,19 +87,7 @@ setLoading(true);
             "token"
           );
 
-        await axios.put(
-          `/events/${id}`,
-          {
-            title,
-            description,
-          },
-          {
-            headers: {
-              Authorization:
-                `Bearer ${token}`,
-            },
-          }
-        );
+        await eventService.updateEvent(id, data, token);
 
         showSuccess("Event Updated Successfully");
 
@@ -119,7 +101,7 @@ setLoading(true);
       finally {setLoading(false);}
     };
           if (!title && !description)
-return <h2>Loading Event...</h2>;
+return <Loader />;
 
   return (
     <div className="container">

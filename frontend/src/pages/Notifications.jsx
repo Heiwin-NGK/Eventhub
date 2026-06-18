@@ -3,6 +3,9 @@ import axios from "../api/axios";
 import Navbar from "../components/Navbar";
 import { getErrorMessage } from "../utils/errorHandler";
 import { showSuccess } from "../utils/successHandler";
+import notificationService from "../services/notificationService";
+import Loader from "../components/Loader";
+import EmptyState from "../components/EmptyState";
 
 function Notifications() {
   const [notifications, setNotifications] =
@@ -20,15 +23,7 @@ function Notifications() {
         localStorage.getItem("token");
 
       const res =
-        await axios.get(
-          "/notifications/my",
-          {
-            headers: {
-              Authorization:
-                `Bearer ${token}`,
-            },
-          }
-        );
+        await notificationService.getNotifications(token);
 
       setNotifications(
         res.data
@@ -49,16 +44,7 @@ function Notifications() {
       const token =
         localStorage.getItem("token");
 
-      await axios.put(
-        `/notifications/read/${id}`,
-        {},
-        {
-          headers: {
-            Authorization:
-              `Bearer ${token}`,
-          },
-        }
-      );
+      await notificationService.markAsRead(id, token);
 
 showSuccess("Notification Marked as Read");
 

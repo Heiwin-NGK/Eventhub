@@ -1,13 +1,11 @@
 const express = require("express");
-
+const { authorize } = require("../middleware/roleMiddleware");
 const router = express.Router();
-
 const {
   registerForEvent,
   getMyRegistrations,
   getEventRegistrations,
 } = require("../controllers/registrationController");
-
 const {
   protect,
 } = require("../middleware/authMiddleware");
@@ -15,6 +13,7 @@ const {
 router.post(
   "/:eventId",
   protect,
+  authorize("attendee"),
   registerForEvent
 );
 

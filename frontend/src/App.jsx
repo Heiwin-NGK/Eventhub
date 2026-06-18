@@ -1,9 +1,4 @@
-import {
-  BrowserRouter,
-  Routes,
-  Route,
-} from "react-router-dom";
-
+import {BrowserRouter,Routes,Route,} from "react-router-dom";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Events from "./pages/Events";
@@ -15,17 +10,17 @@ import CreateEvent from "./pages/CreateEvent";
 import Reports from "./pages/Reports";
 import Profile from "./pages/Profile";
 import EditEvent from "./pages/EditEvent";
+import { ROUTES } from "./constants/routes";
 
 function App() {
   return (
     <BrowserRouter>
 
       <Routes>
-<Route path="/auth" element={<Auth />} />
-<Route path="/register" element={<Auth />} />
+<Route path={ROUTES.AUTH} element={<Auth />} />
 
         <Route
-  path="/events"
+  path={ROUTES.EVENTS}
   element={
     <ProtectedRoute>
       <Events />
@@ -34,7 +29,7 @@ function App() {
 />
 
         <Route
-  path="/tickets"
+  path={ROUTES.TICKETS}
   element={
     <ProtectedRoute>
       <MyTickets />
@@ -43,7 +38,7 @@ function App() {
 />
 
         <Route
-  path="/notifications"
+  path={ROUTES.NOTIFICATIONS}
   element={
     <ProtectedRoute>
       <Notifications />
@@ -52,7 +47,7 @@ function App() {
 />
 
 <Route
-  path="/analytics"
+  path={ROUTES.ANALYTICS}
   element={
     <ProtectedRoute>
       <Analytics />
@@ -61,7 +56,7 @@ function App() {
 />
         
         <Route
-  path="/create-event"
+  path={ROUTES.CREATE_EVENT}
   element={
     <ProtectedRoute>
       <CreateEvent />
@@ -70,7 +65,7 @@ function App() {
 />
 
         <Route
-  path="/reports"
+  path={ROUTES.REPORTS}
   element={
     <ProtectedRoute>
       <Reports />
@@ -78,7 +73,7 @@ function App() {
   }
 />
         <Route
-  path="/profile"
+  path={ROUTES.PROFILE}
   element={
     <ProtectedRoute>
       <Profile />
@@ -87,7 +82,7 @@ function App() {
 />
 
         <Route
-          path="/"
+          path={ROUTES.DASHBOARD}
           element={
             <ProtectedRoute>
               <Dashboard />

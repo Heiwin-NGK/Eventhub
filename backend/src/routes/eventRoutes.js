@@ -1,7 +1,6 @@
+const { authorize } = require("../middleware/roleMiddleware");
 const express = require("express");
-
 const router = express.Router();
-
 const {
   createEvent,
   getEvents,
@@ -9,19 +8,27 @@ const {
   updateEvent,
   deleteEvent,
 } = require("../controllers/eventController");
-
 const {
   protect,
 } = require("../middleware/authMiddleware");
-
-router.post("/", protect, createEvent);
-
 router.get("/", getEvents);
-
 router.get("/:id", getEventById);
-
-router.put("/:id", protect, updateEvent);
-
-router.delete("/:id", protect, deleteEvent);
-
+router.post(
+  "/",
+  protect,
+  authorize("admin", "organizer"),
+  createEvent
+);
+router.put(
+  "/:id",
+  protect,
+  authorize("admin", "organizer"),
+  updateEvent
+);
+router.delete(
+  "/:id",
+  protect,
+  authorize("admin", "organizer"),
+  deleteEvent
+);
 module.exports = router;

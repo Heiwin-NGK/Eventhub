@@ -1,27 +1,32 @@
 export const getErrorMessage = (error) => {
   if (!error.response) {
-    return "Unable to connect to the server.";
+    return "Unable to connect to the server. Please check your internet connection.";
   }
-
   switch (error.response.status) {
     case 400:
-      return error.response.data?.message || "Bad Request";
-
+      return error.response.data?.message || "Invalid request.";
     case 401:
-      return "Unauthorized. Please login again.";
-
+      return "Session expired. Please login again.";
     case 403:
-      return "Access Denied.";
-
+      return (
+        error.response.data?.message ||
+        "Access denied. You do not have permission to perform this action."
+      );
     case 404:
-      return "Resource Not Found.";
-
+      return (
+        error.response.data?.message ||
+        "Requested resource was not found."
+      );
     case 409:
-      return error.response.data?.message || "Conflict occurred.";
-
+      return (
+        error.response.data?.message ||
+        "Conflict occurred."
+      );
     case 500:
-      return "Internal Server Error.";
-
+      return (
+        error.response.data?.message ||
+        "Internal server error."
+      );
     default:
       return (
         error.response.data?.message ||

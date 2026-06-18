@@ -58,19 +58,26 @@ exports.getEventById = async (req, res) => {
 
 exports.updateEvent = async (req, res) => {
   try {
-    const event = await Event.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      {
-        new: true,
-      }
-    );
+    const event = await Event.findById(req.params.id);
 
     if (!event) {
       return res.status(404).json({
         message: "Event not found",
       });
     }
+
+    if (
+      req.user.role !== "admin" &&
+      event.organizerId.toString() !== req.user._id.toString()
+    ) {
+      return res.status(403).json({
+        message: "You can only edit your own events",
+      });
+    }
+
+    Object.assign(event, req.body);
+
+    await event.save();
 
     res.status(200).json(event);
 
@@ -83,15 +90,24 @@ exports.updateEvent = async (req, res) => {
 
 exports.deleteEvent = async (req, res) => {
   try {
-    const event = await Event.findByIdAndDelete(
-      req.params.id
-    );
+    const event = await Event.findById(req.params.id);
 
     if (!event) {
       return res.status(404).json({
         message: "Event not found",
       });
     }
+
+    if (
+      req.user.role !== "admin" &&
+      event.organizerId.toString() !== req.user._id.toString()
+    ) {
+      return res.status(403).json({
+        message: "You can only delete your own events",
+      });
+    }
+
+    await event.deleteOne();
 
     res.status(200).json({
       message: "Event deleted successfully",
