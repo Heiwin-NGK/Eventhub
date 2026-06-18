@@ -8,6 +8,8 @@ import axios
 
 import Navbar
   from "../components/Navbar";
+import { getErrorMessage } from "../utils/errorHandler";
+import { showSuccess } from "../utils/successHandler";
 
 function MyTickets() {
 
@@ -44,18 +46,15 @@ function MyTickets() {
         );
 
       } catch (error) {
-
-    alert(
-      error.response?.data?.message ||
-      "Something went wrong"
-    );
-
-  } finally {
+        alert(getErrorMessage(error));
+        } finally {
 
     setLoading(false);
 
   }
     };
+    if(loading)
+return <h2>Loading Tickets...</h2>;
 
   return (
     <>
@@ -65,20 +64,19 @@ function MyTickets() {
         My Tickets
       </h1>
 
-      {tickets.map(
+      {tickets.length === 0 ? (
+
+<h3>No Tickets Found</h3>
+
+) : (
+
+tickets.map(
         (ticket) => (
-          <div
+          <div className="container"
             key={
               ticket._id
             }
-            style={{
-              border:
-                "1px solid black",
-              margin:
-                "10px",
-              padding:
-                "10px",
-            }}
+            className="card"
           >
             <h3>
               {
@@ -96,7 +94,7 @@ function MyTickets() {
 
           </div>
         )
-      )}
+      ) )}
     </>
   );
 }

@@ -1,6 +1,8 @@
 import { useState } from "react";
 import axios from "../api/axios";
 import Navbar from "../components/Navbar";
+import { getErrorMessage } from "../utils/errorHandler";
+import { showSuccess } from "../utils/successHandler";
 
 function Reports() {
   const [eventId, setEventId] =
@@ -9,10 +11,14 @@ function Reports() {
   const [report, setReport] =
     useState([]);
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const fetchRegistrations =
     async () => {
+      if (!eventId.trim()) {
+  alert("Please enter an Event ID.");
+  return;
+}
       try {
         setLoading(true);
         const token =
@@ -36,13 +42,8 @@ function Reports() {
         );
 
       } catch (error) {
-
-    alert(
-      error.response?.data?.message ||
-      "Something went wrong"
-    );
-
-  } finally {
+        alert(getErrorMessage(error));
+        } finally {
 
     setLoading(false);
 
@@ -51,6 +52,10 @@ function Reports() {
 
     const downloadCSV =
   async () => {
+    if (!eventId.trim()) {
+  alert("Please enter an Event ID.");
+  return;
+}
     try {
         setLoading(true);
       const token =
@@ -96,13 +101,15 @@ function Reports() {
       );
 
       link.click();
+      showSuccess("CSV Download Started");
 
     } catch (error) {
-      alert(
-        error.response?.data?.message ||
-        "Something went wrong"
-      );
-    }
+      alert(getErrorMessage(error));
+    }finally{
+
+setLoading(false);
+
+}
   };
 
   return (
@@ -123,25 +130,29 @@ function Reports() {
         }
       />
 
-      <button
+      <button disabled={loading}
         onClick={
           fetchRegistrations
         }
-      >
-        Load Report
+      >{loading ? "Loading..." : "Load Report"}
       </button>
 
-      <button
-  onClick={
-    downloadCSV
-  }
->
-  Download CSV
-</button>
+      <button disabled={loading}
+        onClick={
+          downloadCSV
+        }
+      >{loading ? "Downloading..." : "Download CSV"}
+      </button>
 
       <hr />
 
-      {report.map((r) => (
+      {report.length === 0 ? (
+
+<h3>No Report Loaded</h3>
+
+) : (
+
+report.map((r) => (
         <div
           key={r._id}
         >
@@ -159,7 +170,7 @@ function Reports() {
 
           <hr />
         </div>
-      ))}
+      )) )}
     </>
   );
 }

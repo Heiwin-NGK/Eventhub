@@ -4,8 +4,7 @@ import {
   Route,
 } from "react-router-dom";
 
-import Login from "./pages/Login";
-import Register from "./pages/Register";
+import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Events from "./pages/Events";
 import MyTickets from "./pages/MyTickets";
@@ -22,16 +21,8 @@ function App() {
     <BrowserRouter>
 
       <Routes>
-
-        <Route
-          path="/login"
-          element={<Login />}
-        />
-
-        <Route
-          path="/register"
-          element={<Register />}
-        />
+<Route path="/auth" element={<Auth />} />
+<Route path="/register" element={<Auth />} />
 
         <Route
   path="/events"

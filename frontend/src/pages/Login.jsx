@@ -1,22 +1,16 @@
-import {
-  useState,
-  useContext,
-} from "react";
-
+import { useState,useContext,} from "react";
 import axios from "../api/axios";
-
-import {
-  AuthContext,
-} from "../context/AuthContext";
-
-import {
-  useNavigate,
-} from "react-router-dom";
+import { AuthContext,} from "../context/AuthContext";
+import { useNavigate,} from "react-router-dom";
+import { getErrorMessage } from "../utils/errorHandler";
+import { showSuccess } from "../utils/successHandler";
+import { validateEmail,validateRequired,} from "../utils/validation";
 
 function Login() {
-
   const [email, setEmail] =
     useState("");
+  const [loading, setLoading] =
+  useState(false);
 
   const [
     password,
@@ -31,45 +25,51 @@ function Login() {
   const navigate =
     useNavigate();
 
-  const handleSubmit =
-    async (e) => {
+  const handleSubmit = async (e) => {
+  e.preventDefault();
 
-      e.preventDefault();
+  if (loading) return;
 
-      try {
+  setLoading(true);
+  if (!validateRequired(email, password)) {
+  alert("Please fill in all fields.");
+  return;
+}
 
-        const res =
-          await axios.post(
-            "/auth/login",
-            {
-              email,
-              password,
-            }
-          );
+if (!validateEmail(email)) {
+  alert("Please enter a valid email.");
+  return;
+}
 
-        login(
-          res.data
-        );
+  try {
+    const res = await axios.post("/auth/login", {
+      email,
+      password,
+    });
 
-        navigate("/");
+login(res.data);
 
-      } catch (error) {
-        alert(
-          error.response.data
-            .message
-        );
-      }
-    };
+showSuccess("Login Successful");
 
+navigate("/");
+  } catch (error) {
+    alert(getErrorMessage(error));
+    } finally {
+    setLoading(false);
+  }
+};
   return (
+<div className="container">
     <form
       onSubmit={
         handleSubmit
       }
     >
+      <div className="card">
       <h1>Login</h1>
 
       <input
+  disabled={loading}
         placeholder="Email"
         value={email}
         onChange={(e) =>
@@ -80,7 +80,8 @@ function Login() {
       />
 
       <input
-        type="password"
+  disabled={loading}
+  type="password"
         placeholder="Password"
         value={password}
         onChange={(e) =>
@@ -88,12 +89,11 @@ function Login() {
             e.target.value
           )
         }
-      />
-
-      <button>
-        Login
-      </button>
-    </form>
+      /> 
+<button disabled={loading}>
+  {loading ? "Logging in..." : "Login"}
+</button></div>
+    </form> </div>
   );
 }
 

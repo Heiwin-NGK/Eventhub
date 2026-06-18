@@ -8,6 +8,8 @@ import axios
 
 import Navbar
   from "../components/Navbar";
+import { getErrorMessage } from "../utils/errorHandler";
+import { showSuccess } from "../utils/successHandler";
 
 function Analytics() {
 
@@ -46,34 +48,28 @@ function Analytics() {
         );
 
       } catch (error) {
-
-    alert(
-      error.response?.data?.message ||
-      "Something went wrong"
-    );
-
-  } finally {
+        alert(getErrorMessage(error));
+        } finally {
 
     setLoading(false);
 
   }
     };
 
-  if (!stats)
-    return (
-      <div>
-        Loading...
-      </div>
-    );
+  if(loading)
+return <h2>Loading Analytics...</h2>;
 
+if (!stats)
+return <div className="card">
+  <h2>No Analytics Available</h2></div>;
   return (
     <>
       <Navbar />
-
+<div className="card">
       <h1>
         Analytics Dashboard
       </h1>
-
+</div>
       <p>
         Users:
         {stats.totalUsers}

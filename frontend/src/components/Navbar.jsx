@@ -9,7 +9,7 @@ function Navbar() {
     );
 
     window.location.href =
-      "/login";
+      "/auth";
   };
 
   return (
@@ -18,56 +18,28 @@ function Navbar() {
       <Link to="/">
         Dashboard
       </Link>
-
-      {" | "}
-
       <Link to="/events">
         Events
       </Link>
-
-      {" | "}
-
       <Link to="/create-event">
         Create Event
       </Link>
-
-      {" | "}
-
       <Link to="/tickets">
         Tickets
       </Link>
-
-      {" | "}
-
       <Link to="/notifications">
         Notifications
       </Link>
-
-      {" | "}
-
       <Link to="/analytics">
         Analytics
       </Link>
-
-      {" | "}
-
       <Link to="/reports">
         Reports
       </Link>
-
-      {" | "}
-
       <Link to="/profile">
         Profile
       </Link>
-
-      {" | "}
-
-      <button
-        onClick={logout}
-      >
-        Logout
-      </button>
+      <button onClick={logout}>  Logout </button>
 
     </nav>
   );

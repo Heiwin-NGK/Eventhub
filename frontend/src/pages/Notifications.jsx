@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "../api/axios";
 import Navbar from "../components/Navbar";
+import { getErrorMessage } from "../utils/errorHandler";
+import { showSuccess } from "../utils/successHandler";
 
 function Notifications() {
   const [notifications, setNotifications] =
@@ -33,13 +35,8 @@ function Notifications() {
       );
 
     } catch (error) {
-
-    alert(
-      error.response?.data?.message ||
-      "Something went wrong"
-    );
-
-  } finally {
+      alert(getErrorMessage(error));
+     } finally {
 
     setLoading(false);
 
@@ -63,17 +60,16 @@ function Notifications() {
         }
       );
 
-      fetchNotifications();
+showSuccess("Notification Marked as Read");
 
     } catch (error) {
-      alert(
-        error.response?.data?.message ||
-        "Something went wrong"
-      );
+      alert(getErrorMessage(error));
     } finally {
       setLoading(false);
     }
   };
+  if(loading)
+return <h2>Loading Notifications...</h2>;
 
   return (
     <>
@@ -81,15 +77,16 @@ function Notifications() {
 
       <h1>Notifications</h1>
 
-      {notifications.map((n) => (
-        <div
+      {notifications.length === 0 ? (
+
+<h3>No Notifications</h3>
+
+) : (
+
+notifications.map((n) => (
+        <div className="container"
           key={n._id}
-          style={{
-            border:
-              "1px solid black",
-            margin: "10px",
-            padding: "10px",
-          }}
+          className="card"
         >
           <h3>{n.title}</h3>
 
@@ -103,7 +100,7 @@ function Notifications() {
           </p>
 
           {!n.isRead && (
-            <button
+            <button disabled={loading}
               onClick={() =>
                 markAsRead(
                   n._id
@@ -114,7 +111,7 @@ function Notifications() {
             </button>
           )}
         </div>
-      ))}
+      )) )}
     </>
   );
 }

@@ -5,21 +5,27 @@ function Dashboard() {
     <>
       <Navbar />
 
-      <h1>EventHub Dashboard</h1>
+      <div className="card">
+        <h1>EventHub Dashboard</h1>
+      </div>
 
-      <p>Welcome to EventHub</p>
+      <div className="card">
+        <p>Welcome to EventHub</p>
+      </div>
 
-      <p>
-        Use the menu above to access:
-      </p>
+      <div className="card">
+        <p>
+          Use the menu above to access:
+        </p>
 
-      <ul>
-        <li>Events</li>
-        <li>Tickets</li>
-        <li>Notifications</li>
-        <li>Analytics</li>
-        <li>Reports</li>
-      </ul>
+        <ul>
+          <li>Events</li>
+          <li>Tickets</li>
+          <li>Notifications</li>
+          <li>Analytics</li>
+          <li>Reports</li>
+        </ul>
+      </div>
     </>
   );
 }

@@ -1,14 +1,9 @@
-import {
-  useState,
-  useEffect,
-} from "react";
-
-import {
-  useParams,
-  useNavigate,
-} from "react-router-dom";
-
+import { useState,useEffect,} from "react";
+import { useParams,useNavigate,} from "react-router-dom";
 import axios from "../api/axios";
+import { getErrorMessage } from "../utils/errorHandler";
+import { showSuccess } from "../utils/successHandler";
+import { validateRequired,} from "../utils/validation";
 
 function EditEvent() {
 
@@ -25,6 +20,8 @@ function EditEvent() {
     setDescription] =
     useState("");
 
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     fetchEvent();
   }, []);
@@ -33,7 +30,7 @@ function EditEvent() {
     async () => {
 
       try {
-
+        setLoading(true);
         const token =
           localStorage.getItem(
             "token"
@@ -67,17 +64,29 @@ function EditEvent() {
           );
         }
 
-      } catch (error) {
-        console.log(error);
+      } catch (error) { 
+        alert(getErrorMessage(error));
       }
+      finally {setLoading(false);}
     };
 
   const handleSubmit =
     async (e) => {
 
       e.preventDefault();
+      if (
+  !validateRequired(
+    title,
+    description
+  )
+) {
+  alert("All fields are required.");
+  return;
+}
 
-      try {
+      try {if(loading) return;
+
+setLoading(true);
 
         const token =
           localStorage.getItem(
@@ -98,28 +107,31 @@ function EditEvent() {
           }
         );
 
-        alert(
-          "Updated"
-        );
+        showSuccess("Event Updated Successfully");
 
         navigate(
           "/events"
         );
 
       } catch (error) {
-        console.log(error);
+        alert(getErrorMessage(error));
       }
+      finally {setLoading(false);}
     };
+          if (!title && !description)
+return <h2>Loading Event...</h2>;
 
   return (
-    <div>
+    <div className="container">
 
-      <h1>
-        Edit Event
-      </h1>
-
-      <form
-        onSubmit={
+      <div className="card">
+        <h1>
+          Edit Event
+        </h1>
+      </div>
+      <div className="container">
+        <form
+          onSubmit={
           handleSubmit
         }
       >
@@ -148,12 +160,12 @@ function EditEvent() {
 
         <br />
 
-        <button>
-          Save
-        </button>
+        <button disabled={loading}>
+{loading ? "Saving..." : "Save"}
+</button>
 
       </form>
-
+</div>
     </div>
   );
 }

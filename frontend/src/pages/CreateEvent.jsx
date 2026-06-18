@@ -1,6 +1,9 @@
 import { useState } from "react";
 import axios from "../api/axios";
 import Navbar from "../components/Navbar";
+import { getErrorMessage } from "../utils/errorHandler";
+import { showSuccess } from "../utils/successHandler";
+import { validateRequired,validateCapacity,} from "../utils/validation";
 
 function CreateEvent() {
   const [title, setTitle] =
@@ -14,11 +17,34 @@ function CreateEvent() {
 
   const [capacity, setCapacity] =
     useState("");
+  
+  const [loading,setLoading]=useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (
+  !validateRequired(
+    title,
+    description,
+    venue,
+    capacity
+  )
+) {
+  alert("Please fill all fields.");
+  return;
+}
+
+if (!validateCapacity(capacity)) {
+  alert(
+    "Capacity must be greater than zero."
+  );
+  return;
+}
 
     try {
+      if(loading) return;
+
+setLoading(true);
 
       const token =
         localStorage.getItem("token");
@@ -45,30 +71,29 @@ function CreateEvent() {
           }
         );
 
-      alert(
-        "Event Created"
-      );
+showSuccess("Event Created Successfully");
 
       console.log(
         res.data
       );
 
     } catch (error) {
-      alert(
-        error.response.data
-          .message
-      );
-    }
+      alert(getErrorMessage(error));
+      }finally{
+
+setLoading(false);
+
+}
   };
 
   return (
     <>
       <Navbar />
-
+<div className="card">
       <h1>
         Create Event
-      </h1>
-
+      </h1></div>
+<div className="container">
       <form
         onSubmit={
           handleSubmit
@@ -122,11 +147,11 @@ function CreateEvent() {
 
         <br />
 
-        <button>
-          Create
+        <button disabled={loading}>
+          {loading ? "Creating..." : "Create"}
         </button>
 
-      </form>
+      </form> </div>
     </>
   );
 }

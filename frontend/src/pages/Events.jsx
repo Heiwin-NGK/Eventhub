@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import axios from "../api/axios";
 import Navbar from "../components/Navbar";
 import { Link } from "react-router-dom";
+import { getErrorMessage } from "../utils/errorHandler";
+import { showSuccess } from "../utils/successHandler";
+import { confirmAction } from "../utils/confirmHandler";
 
 function Events() {
   const [events, setEvents] = useState([]);
@@ -31,13 +34,8 @@ function Events() {
       setEvents(res.data);
 
     } catch (error) {
-
-    alert(
-      error.response?.data?.message ||
-      "Something went wrong"
-    );
-
-  } finally {
+      alert(getErrorMessage(error));
+      } finally {
 
     setLoading(false);
 
@@ -67,9 +65,7 @@ function Events() {
         }
       );
 
-    alert(
-      "Registered Successfully"
-    );
+    showSuccess("Successfully Registered for Event");
 
     console.log(
       res.data
@@ -78,14 +74,23 @@ function Events() {
   } catch (error) {
 
     alert(
-      error.response.data
-        .message
+      getErrorMessage(error)
     );
+  }finally{
 
-  }
+setLoading(false);
+
+}
 };
 
 const deleteEvent = async (id) => {
+  if (
+  !confirmAction(
+    "Are you sure you want to delete this event?"
+  )
+) {
+  return;
+}
   try {
     setLoading(true);
 
@@ -102,7 +107,7 @@ const deleteEvent = async (id) => {
       }
     );
 
-    alert("Event Deleted");
+    showSuccess("Event Deleted Successfully");
 
     fetchEvents();
 
@@ -112,6 +117,11 @@ const deleteEvent = async (id) => {
       "Delete Failed"
     );
   }
+  finally{
+
+setLoading(false);
+
+}
 };
 
 if (loading)
@@ -120,19 +130,21 @@ if (loading)
   return (
     <>
       <Navbar />
-      <div>
+      <div className="container">
         <h1>Events</h1>
 
-      {events.map((event) => (
+      {events.length === 0 ? (
+
+  <h3>No Events Available</h3>
+
+) : (
+
+  events.map((event) => (
         <div
           key={event._id}
-          style={{
-            border:
-              "1px solid black",
-            margin: "10px",
-            padding: "10px",
-          }}
+          className="card"
         >
+          <div className="card">
           <h3>{event.title}</h3>
 
           <p>
@@ -147,14 +159,16 @@ if (loading)
             Capacity:
             {event.capacity}
           </p>
-          <button onClick={() => registerEvent(event._id)}
->  Register </button>
-          <Link to={`/edit-event/${event._id}`
-        }> Edit </Link>
+          </div>
+          <button disabled={loading} onClick={() => registerEvent(event._id)}
+>  Register </button>{" "}
+          <Link className="button-link" to=
+          {`/edit-event/${event._id}`}
+> Edit </Link>{" "}
           <button onClick={() => deleteEvent(event._id)}
 >  Delete </button>
         </div>
-      ))}
+      )) )}
     </div>
     </>
   );
