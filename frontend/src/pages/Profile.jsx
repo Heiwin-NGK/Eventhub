@@ -1,38 +1,56 @@
+import { useContext } from "react";
+
 import Navbar from "../components/Navbar";
+
+import { AuthContext }
+from "../context/AuthContext";
 
 function Profile() {
 
-  const token =
-    localStorage.getItem(
-      "token"
-    );
+  const { user } =
+    useContext(AuthContext);
 
   return (
     <>
-  <Navbar />
+      <Navbar />
 
-  <div className="container">
+      <div className="container">
 
-    <div className="card">
-      <h1>User Profile</h1>
-    </div>
+        <div className="card">
 
-    <div className="card">
-      <p>Logged In</p>
+          <h1>User Profile</h1>
 
-      <p>Token:</p>
+          <p>
 
-      <textarea
-        rows="6"
-        cols="60"
-        readOnly
-        value={token}
-      />
-    </div>
+            <strong>Name:</strong>
 
-  </div>
-</>
+            {user?.name}
+
+          </p>
+
+          <p>
+
+            <strong>Email:</strong>
+
+            {user?.email}
+
+          </p>
+
+          <p>
+
+            <strong>Role:</strong>
+
+            {user?.role}
+
+          </p>
+
+        </div>
+
+      </div>
+
+    </>
   );
+
 }
 
 export default Profile;

@@ -1,5 +1,4 @@
 import { useState } from "react";
-import axios from "../api/axios";
 import Navbar from "../components/Navbar";
 import { getErrorMessage } from "../utils/errorHandler";
 import { showSuccess } from "../utils/successHandler";
@@ -50,9 +49,13 @@ setLoading(true);
 
       const token =
         localStorage.getItem("token");
+const data = {title,description,
+  venue,capacity,eventType: "Workshop",
+  startDate: "2026-12-01",
+  endDate: "2026-12-02",
+};
 
-      const res =
-        await eventService.createEvent(data, token);
+const res = await eventService.createEvent(data, token);
 
 showSuccess(SUCCESS_MESSAGES.EVENT_CREATED);
 

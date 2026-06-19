@@ -10,7 +10,9 @@ import CreateEvent from "./pages/CreateEvent";
 import Reports from "./pages/Reports";
 import Profile from "./pages/Profile";
 import EditEvent from "./pages/EditEvent";
+import { ROLES } from "./constants/roles";
 import { ROUTES } from "./constants/routes";
+import RoleRoute from "./routes/RoleRoute";
 
 function App() {
   return (
@@ -50,7 +52,12 @@ function App() {
   path={ROUTES.ANALYTICS}
   element={
     <ProtectedRoute>
-      <Analytics />
+      <RoleRoute
+        roles={[
+          ROLES.ADMIN,
+          ROLES.ORGANIZER,
+        ]}
+      ><Analytics /></RoleRoute>
     </ProtectedRoute>
   }
 />
@@ -59,7 +66,12 @@ function App() {
   path={ROUTES.CREATE_EVENT}
   element={
     <ProtectedRoute>
-      <CreateEvent />
+      <RoleRoute
+        roles={[
+          ROLES.ADMIN,
+          ROLES.ORGANIZER,
+        ]}
+      ><CreateEvent /></RoleRoute>
     </ProtectedRoute>
   }
 />
@@ -68,7 +80,12 @@ function App() {
   path={ROUTES.REPORTS}
   element={
     <ProtectedRoute>
-      <Reports />
+      <RoleRoute
+        roles={[
+          ROLES.ADMIN,
+          ROLES.ORGANIZER,
+        ]}
+      ><Reports /></RoleRoute>
     </ProtectedRoute>
   }
 />
@@ -91,10 +108,15 @@ function App() {
         />
 
         <Route
-          path="/edit-event/:id"
+          path={ROUTES.EDIT_EVENT}
           element={
             <ProtectedRoute>
-              <EditEvent />
+              <RoleRoute
+    roles={[
+      ROLES.ADMIN,
+      ROLES.ORGANIZER,
+    ]}
+  ><EditEvent /></RoleRoute>
             </ProtectedRoute>
           }
         />

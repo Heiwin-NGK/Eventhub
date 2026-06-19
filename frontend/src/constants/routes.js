@@ -8,4 +8,5 @@ export const ROUTES = {
   ANALYTICS: "/analytics",
   REPORTS: "/reports",
   PROFILE: "/profile",
+  EDIT_EVENT: "/edit-event/:id",  
 };

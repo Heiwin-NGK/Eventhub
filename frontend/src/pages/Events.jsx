@@ -8,8 +8,12 @@ import { Link } from "react-router-dom";
 import { getErrorMessage } from "../utils/errorHandler";
 import { showSuccess } from "../utils/successHandler";
 import { confirmAction } from "../utils/confirmHandler";
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
+import { ROLES } from "../constants/roles";
 
 function Events() {
+  const { user } = useContext(AuthContext);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -51,7 +55,7 @@ const res = await eventService.getEvents(token);
       await registrationService.registerForEvent(eventId, token);
 
     showSuccess("Successfully Registered for Event");
-
+    fetchEvents();
     console.log(
       res.data
     );
@@ -115,37 +119,62 @@ if (loading)
   <EmptyState title="No Events Available" />
 
 ) : (
+events.map((event) => {
 
-  events.map((event) => (
-        <div
-          key={event._id}
-          className="card"
+  const canManage =
+    user?.role === ROLES.ADMIN ||
+    (
+      user?.role === ROLES.ORGANIZER &&
+      (
+        event.organizerId === user.id ||
+        event.organizerId?._id === user.id
+      )
+    );
+
+  return (
+    <div
+      key={event._id}
+      className="card"
+    >
+      <div className="card">
+        <h3>{event.title}</h3>
+
+        <p>{event.description}</p>
+
+        <p>{event.venue}</p>
+
+        <p>Capacity: {event.capacity}</p>
+      </div>
+
+      {user?.role === ROLES.ATTENDEE && (
+        <button
+          disabled={loading}
+          onClick={() => registerEvent(event._id)}
         >
-          <div className="card">
-          <h3>{event.title}</h3>
+          Register
+        </button>
+      )}{" "}
 
-          <p>
-            {event.description}
-          </p>
+      {canManage && (
+        <>
+          <Link
+            className="button-link"
+            to={`/edit-event/${event._id}`}
+          >
+            Edit
+          </Link>{" "}
 
-          <p>
-            {event.venue}
-          </p>
+          <button
+            onClick={() => deleteEvent(event._id)}
+          >
+            Delete
+          </button>
+        </>
+      )}
+    </div>
+  );
 
-          <p>
-            Capacity:
-            {event.capacity}
-          </p>
-          </div>
-          <button disabled={loading} onClick={() => registerEvent(event._id)}
->  Register </button>{" "}
-          <Link className="button-link" to=
-          {`/edit-event/${event._id}`}
-> Edit </Link>{" "}
-          <button onClick={() => deleteEvent(event._id)}
->  Delete </button>
-        </div>
-      )) )}
+}) )}
     </div>
     </>
   );

@@ -7,7 +7,6 @@ exports.createEvent = async (req, res) => {
       ...req.body,
       organizerId: req.user._id,
     });
-
     res.status(201).json(event);
 
   } catch (error) {

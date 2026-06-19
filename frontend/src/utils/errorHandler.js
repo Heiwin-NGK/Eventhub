@@ -1,6 +1,6 @@
 export const getErrorMessage = (error) => {
-  if (!error.response) {
-    return "Unable to connect to the server. Please check your internet connection.";
+   if (!error.response) {
+    return error.message || "Unexpected Error";
   }
   switch (error.response.status) {
     case 400:

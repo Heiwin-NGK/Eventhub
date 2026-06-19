@@ -1,6 +1,5 @@
 import { useState,useEffect,} from "react";
 import { useParams,useNavigate,} from "react-router-dom";
-import axios from "../api/axios";
 import { getErrorMessage } from "../utils/errorHandler";
 import { showSuccess } from "../utils/successHandler";
 import { validateRequired,} from "../utils/validation";
@@ -86,7 +85,10 @@ setLoading(true);
           localStorage.getItem(
             "token"
           );
-
+const data = {
+  title,
+  description,
+};
         await eventService.updateEvent(id, data, token);
 
         showSuccess("Event Updated Successfully");

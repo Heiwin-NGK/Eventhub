@@ -7,42 +7,35 @@ import { AuthContext } from "../context/AuthContext";
 import { getErrorMessage } from "../utils/errorHandler";
 import { showSuccess } from "../utils/successHandler";
 import { validateEmail,validatePassword,validateRequired,} from "../utils/validation";
+import {useRef} from "react";
 
 function Auth() {
   const navigate = useNavigate();
   const { login } = useContext(AuthContext);
-
   const [isLogin, setIsLogin] = useState(true);
-
   const [loading, setLoading] = useState(false);
-
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
+  const emailRef = useRef();
   const clearFields = () => {
     setName("");
     setEmail("");
     setPassword("");
   };
-
   const switchMode = (mode) => {
   if (loading) return;
   clearFields();
   setIsLogin(mode);
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (loading) return;
-
     if (isLogin) {
       if (!validateRequired(email, password)) {
         alert("Please fill in all fields.");
         return;
       }
-
       if (!validateEmail(email)) {
         alert("Please enter a valid email.");
         return;
@@ -52,31 +45,25 @@ function Auth() {
         alert("Please fill in all fields.");
         return;
       }
-
       if (!validateEmail(email)) {
         alert("Please enter a valid email.");
         return;
       }
-
       if (!validatePassword(password)) {
         alert("Password must be at least 6 characters.");
         return;
       }
     }
-
     setLoading(true);
-
     try {
       if (isLogin) {
         const res = await authService.login({
   email,
   password,
 });
-
         login(res.data);
 
         showSuccess(SUCCESS_MESSAGES.LOGIN);
-
 navigate(ROUTES.DASHBOARD);
       } else {
         await authService.register({
@@ -84,10 +71,12 @@ navigate(ROUTES.DASHBOARD);
           email,
           password,
         });
-
         showSuccess(SUCCESS_MESSAGES.REGISTER);
         clearFields();
         setIsLogin(true);
+        setTimeout(() => {
+          emailRef.current?.focus();
+        },0);
       }
     } catch (error) {
       alert(getErrorMessage(error));
@@ -95,14 +84,11 @@ navigate(ROUTES.DASHBOARD);
       setLoading(false);
     }
   };
-
   return (
     <div className="container">
-
       <h1 style={{ textAlign: "center" }}>
         EventHub
       </h1>
-
       <div
         style={{
           display: "flex",
@@ -121,7 +107,6 @@ navigate(ROUTES.DASHBOARD);
 >
   Login
 </button>
-
         <button
   type="button"
   disabled={loading}
@@ -131,13 +116,9 @@ navigate(ROUTES.DASHBOARD);
   }}
 >
   Register
-</button>
-
-        
+</button>        
       </div>
-
       <form onSubmit={handleSubmit}>
-
         {!isLogin && (
           <input
             placeholder="Name"
@@ -146,14 +127,12 @@ navigate(ROUTES.DASHBOARD);
             onChange={(e) => setName(e.target.value)}
           />
         )}
-
         <input
           placeholder="Email"
           value={email}
           disabled={loading}
           onChange={(e) => setEmail(e.target.value)}
         />
-
         <input
           type="password"
           placeholder="Password"
@@ -161,7 +140,6 @@ navigate(ROUTES.DASHBOARD);
           disabled={loading}
           onChange={(e) => setPassword(e.target.value)}
         />
-
         <button disabled={loading}>
           {loading
             ? isLogin
@@ -171,11 +149,8 @@ navigate(ROUTES.DASHBOARD);
             ? "Login"
             : "Register"}
         </button>
-
       </form>
-
     </div>
   );
 }
-
 export default Auth;

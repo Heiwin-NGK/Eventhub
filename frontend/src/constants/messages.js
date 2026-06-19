@@ -8,11 +8,8 @@ export const SUCCESS_MESSAGES = {
 };
 
 export const ERROR_MESSAGES = {
-
   NETWORK: "Unable to connect to server.",
-
   UNAUTHORIZED: "Unauthorized.",
-
   SERVER: "Internal Server Error.",
 
 };
