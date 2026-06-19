@@ -1,0 +1,17 @@
+.status-badge{
+
+display:inline-block;
+
+padding:5px 12px;
+
+border-radius:20px;
+
+color:white;
+
+font-size:13px;
+
+font-weight:bold;
+
+margin:10px 0;
+
+}

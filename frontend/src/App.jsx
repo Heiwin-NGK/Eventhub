@@ -13,6 +13,7 @@ import EditEvent from "./pages/EditEvent";
 import { ROLES } from "./constants/roles";
 import { ROUTES } from "./constants/routes";
 import RoleRoute from "./routes/RoleRoute";
+import EventDetails from "./pages/EventDetails";
 
 function App() {
   return (
@@ -28,6 +29,15 @@ function App() {
       <Events />
     </ProtectedRoute>
   }
+/>
+
+<Route
+path={ROUTES.EVENT_DETAILS}
+element={
+<ProtectedRoute>
+<EventDetails/>
+</ProtectedRoute>
+}
 />
 
         <Route
@@ -107,19 +117,16 @@ function App() {
           }
         />
 
-        <Route
-          path={ROUTES.EDIT_EVENT}
-          element={
-            <ProtectedRoute>
-              <RoleRoute
-    roles={[
-      ROLES.ADMIN,
-      ROLES.ORGANIZER,
-    ]}
-  ><EditEvent /></RoleRoute>
-            </ProtectedRoute>
-          }
-        />
+<Route
+  path={ROUTES.EDIT_EVENT}
+  element={
+    <ProtectedRoute>
+      <RoleRoute roles={[ROLES.ADMIN, ROLES.ORGANIZER]}>
+        <EditEvent />
+      </RoleRoute>
+    </ProtectedRoute>
+  }
+/>
 
       </Routes>
 

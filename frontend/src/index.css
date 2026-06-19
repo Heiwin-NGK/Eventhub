@@ -1,89 +1,10 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-body {
-  background: #f4f6f9;
-  color: #333;
-}
-
-.container {
-  max-width: 1100px;
-  margin: auto;
-  padding: 20px;
-}
-
-h1 {
-  margin-bottom: 20px;
-}
-
-input {
-  width: 100%;
-  padding: 10px;
-  margin: 8px 0;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-}
-
-button {
-  padding: 10px 18px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  background: #1976d2;
-  color: white;
-}
-
-button:hover:not(:disabled) {
-  background: #1565c0;
-}
-
-button:disabled {
-  background: gray;
-  cursor: not-allowed;
-}
-
-.card {
-  background: white;
-  padding: 16px;
-  margin: 15px 0;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,.1);
-}
-
-nav {
-  background: #1976d2;
-  padding: 15px;
-  margin-bottom: 20px;
-}
-
-nav a {
-  color: white;
-  margin-right: 15px;
-  text-decoration: none;
-}
-
-nav button {
-  background: crimson;
-}
-
-hr {
-  margin: 15px 0;
-}
-
-.button-link {
-  display: inline-block;
-  padding: 10px 18px;
-  border-radius: 6px;
-  background: #1976d2;
-  color: white;
-  text-decoration: none;
-  margin: 0 5px;
-}
-
-.button-link:hover {
-  background: #1565c0;
-}
+@import "./styles/global.css";
+@import "./styles/layout.css";
+@import "./styles/navbar.css";
+@import "./styles/cards.css";
+@import "./styles/buttons.css";
+@import "./styles/forms.css";
+@import "./styles/badges.css";
+@import "./styles/tables.css";
+@import "./styles/filters.css";
+@import "./styles/utilities.css";

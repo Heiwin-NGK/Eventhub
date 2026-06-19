@@ -11,34 +11,37 @@ import { confirmAction } from "../utils/confirmHandler";
 import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { ROLES } from "../constants/roles";
+import EventFilters from "../components/EventFilters";
+import EventCard from "../components/EventCard";
+import { ROUTES,getEventDetailsRoute,getEditEventRoute } from "../constants/routes";
 
 function Events() {
-  const { user } = useContext(AuthContext);
-  const [events, setEvents] = useState([]);
-  const [loading, setLoading] = useState(true);
+const { user } = useContext(AuthContext);
+const [events, setEvents] = useState([]);
+const [loading, setLoading] = useState(true);
+const [search,setSearch]=useState("");
+const [type,setType]=useState("All");
+const [venue,setVenue]=useState("");
+const [status,setStatus]=useState("All");
+const [sort,setSort]=useState("newest");
 
-  useEffect(() => {
-    fetchEvents();
-  }, []);
+useEffect(()=>{
+fetchEvents();
+},[search,type,venue,status,sort,]);
 
-  const fetchEvents = async () => {
-    try {
-        setLoading(true);
-      const token =
-        localStorage.getItem("token");
-
-const res = await eventService.getEvents(token);
-
-      setEvents(res.data);
-
-    } catch (error) {
-      alert(getErrorMessage(error));
-      } finally {
-
-    setLoading(false);
-
-  }
-  };
+const fetchEvents=async()=>{
+try{
+setLoading(true);
+const token=localStorage.getItem("token");
+const res=await eventService.getEvents(
+{search,type,venue,status,sort,},token);
+setEvents(res.data);
+}catch(error){
+alert(getErrorMessage(error));
+}finally{
+setLoading(false);
+}
+};
 
   const registerEvent = async (
   eventId
@@ -112,6 +115,32 @@ if (loading)
     <>
       <Navbar />
       <div className="container">
+<EventFilters
+
+search={search}
+setSearch={setSearch}
+
+type={type}
+setType={setType}
+
+venue={venue}
+setVenue={setVenue}
+
+status={status}
+setStatus={setStatus}
+
+sort={sort}
+setSort={setSort}
+
+clearFilters={()=>{
+setSearch("");
+setType("All");
+setVenue("");
+setStatus("All");
+setSort("newest");
+}}
+
+/>
         <h1>Events</h1>
 
       {events.length === 0 ? (
@@ -132,46 +161,48 @@ events.map((event) => {
     );
 
   return (
-    <div
-      key={event._id}
-      className="card"
+<EventCard
+  key={event._id}
+  event={event}
+>
+
+<Link
+  className="button-link"
+  to={getEventDetailsRoute(event._id)}
+>
+  View Details
+</Link>
+
+{" "}
+
+  {user?.role === ROLES.ATTENDEE && (
+    <button
+      disabled={loading}
+      onClick={() => registerEvent(event._id)}
     >
-      <div className="card">
-        <h3>{event.title}</h3>
+      Register
+    </button>
+  )}{" "}
 
-        <p>{event.description}</p>
+  {canManage && (
+    <>
+      <Link
+        className="button-link"
+        to={`/edit-event/${event._id}`}
+      >
+        Edit
+      </Link>{" "}
 
-        <p>{event.venue}</p>
+      <button
+        onClick={() => deleteEvent(event._id)}
+      >
+        Delete
+      </button>
+    </>
+  )}
 
-        <p>Capacity: {event.capacity}</p>
-      </div>
+</EventCard>
 
-      {user?.role === ROLES.ATTENDEE && (
-        <button
-          disabled={loading}
-          onClick={() => registerEvent(event._id)}
-        >
-          Register
-        </button>
-      )}{" "}
-
-      {canManage && (
-        <>
-          <Link
-            className="button-link"
-            to={`/edit-event/${event._id}`}
-          >
-            Edit
-          </Link>{" "}
-
-          <button
-            onClick={() => deleteEvent(event._id)}
-          >
-            Delete
-          </button>
-        </>
-      )}
-    </div>
   );
 
 }) )}

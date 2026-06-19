@@ -17,40 +17,97 @@ exports.createEvent = async (req, res) => {
 };
 
 exports.getEvents = async (req, res) => {
-  try {
-    const events = await Event.find();
+try{
+const {search,type,venue,status,sort,}=req.query;
+const query={};
+if(search){
+query.title={
+$regex:search,
+$options:"i",
+};
+}
+if(type && type!=="All"){
+query.eventType=type;}
+if(venue){
+query.venue={
+$regex:venue,
+$options:"i",
+};}
+if(status && status!=="All"){
+query.status=status;
+}
+let mongoQuery=
+Event.find(query);
+switch(sort){
 
-    res.status(200).json(events);
+case "newest":
+mongoQuery=
+mongoQuery.sort({
+createdAt:-1,
+});
+break;
 
-  } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
-  }
+case "oldest":
+mongoQuery=
+mongoQuery.sort({
+createdAt:1,
+});
+break;
+
+case "capacityAsc":
+mongoQuery=
+mongoQuery.sort({
+capacity:1,
+});
+break;
+
+case "capacityDesc":
+mongoQuery=
+mongoQuery.sort({
+capacity:-1,
+});
+break;
+
+default:
+mongoQuery=
+mongoQuery.sort({
+createdAt:-1,
+});
+}
+const events = await mongoQuery.populate(
+"organizerId","name email role");
+res.status(200).json(events);
+}catch(error){
+res.status(500).json({
+message:error.message,
+});
+}
 };
 
 exports.getEventById = async (req, res) => {
   try {
-
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    if (
+      !mongoose.Types.ObjectId.isValid(
+        req.params.id
+      )
+    ) {
       return res.status(400).json({
-        message: "Invalid Event ID"
+        message: "Invalid Event ID",
       });
     }
-
-    const event = await Event.findById(req.params.id);
-
+const event = await Event.findById(req.params.id).populate(
+  "organizerId",
+  "name email role"
+);
     if (!event) {
       return res.status(404).json({
-        message: "Event not found"
+        message: "Event not found",
       });
     }
-
     res.status(200).json(event);
-
   } catch (error) {
     res.status(500).json({
-      message: error.message
+      message: error.message,
     });
   }
 };

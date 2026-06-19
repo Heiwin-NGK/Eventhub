@@ -1,0 +1,25 @@
+.container {
+  max-width: 1000px;
+  margin: auto;
+  padding: 20px;
+}
+
+.empty-state {
+  text-align: center;
+  color: gray;
+  padding: 40px;
+}
+
+.loader {
+  text-align: center;
+  font-size: 18px;
+  padding: 40px;
+}
+
+@media (max-width:768px){
+
+.container{
+padding:15px;
+}
+
+}

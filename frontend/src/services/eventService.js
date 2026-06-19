@@ -2,13 +2,24 @@ import axios from "../api/axios";
 
 const eventService = {
 
-  getEvents: async (token) => {
-    return await axios.get("/events", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-  },
+  getEvents: async (
+params,
+token
+) => {
+return await axios.get(
+"/events",
+{params,headers:{Authorization:`Bearer ${token}`,
+},
+});
+},
+
+getEventById: async (id, token) => {
+  return await axios.get(`/events/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+},
 
   createEvent: async (data, token) => {
     return await axios.post("/events", data, {

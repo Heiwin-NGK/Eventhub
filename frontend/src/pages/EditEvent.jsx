@@ -37,25 +37,11 @@ function EditEvent() {
             "token"
           );
 
-        const res =
-          await eventService.getEvents(token);
-
-        const event =
-          res.data.find(
-            (e) =>
-              e._id === id
-          );
-
-        if (event) {
-
-          setTitle(
-            event.title
-          );
-
-          setDescription(
-            event.description
-          );
-        }
+const res = await eventService.getEventById(id,token);
+setTitle(res.data.title);
+setDescription(
+  res.data.description
+);
 
       } catch (error) { 
         alert(getErrorMessage(error));
@@ -81,14 +67,8 @@ function EditEvent() {
 
 setLoading(true);
 
-        const token =
-          localStorage.getItem(
-            "token"
-          );
-const data = {
-  title,
-  description,
-};
+const token = localStorage.getItem("token");
+const data = {title, description,};
         await eventService.updateEvent(id, data, token);
 
         showSuccess("Event Updated Successfully");
