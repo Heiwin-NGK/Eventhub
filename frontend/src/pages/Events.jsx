@@ -13,28 +13,31 @@ import { AuthContext } from "../context/AuthContext";
 import { ROLES } from "../constants/roles";
 import EventFilters from "../components/EventFilters";
 import EventCard from "../components/EventCard";
-import { ROUTES,getEventDetailsRoute,getEditEventRoute } from "../constants/routes";
+import useDebounce from "../hooks/useDebounce";
+import { ROUTES,getEventDetailsRoute,getEditEventRoute,getAttendeesRoute,} from "../constants/routes";
 
 function Events() {
 const { user } = useContext(AuthContext);
 const [events, setEvents] = useState([]);
 const [loading, setLoading] = useState(true);
 const [search,setSearch]=useState("");
+const debouncedSearch = useDebounce(search, 500);
 const [type,setType]=useState("All");
 const [venue,setVenue]=useState("");
+const debouncedVenue = useDebounce(venue, 500);
 const [status,setStatus]=useState("All");
 const [sort,setSort]=useState("newest");
 
-useEffect(()=>{
-fetchEvents();
-},[search,type,venue,status,sort,]);
+useEffect(() => {
+  fetchEvents();
+}, [debouncedSearch, type, debouncedVenue, status, sort]);
 
 const fetchEvents=async()=>{
 try{
 setLoading(true);
 const token=localStorage.getItem("token");
 const res=await eventService.getEvents(
-{search,type,venue,status,sort,},token);
+{search:debouncedSearch,type,venue:debouncedVenue,status,sort,},token);
 setEvents(res.data);
 }catch(error){
 alert(getErrorMessage(error));
@@ -54,11 +57,21 @@ setLoading(false);
         "token"
       );
 
-    const res =
-      await registrationService.registerForEvent(eventId, token);
+    const res =await registrationService.registerForEvent(eventId, token);
 
-    showSuccess("Successfully Registered for Event");
-    fetchEvents();
+setEvents((prev) =>
+  prev.map((event) =>
+    event._id === eventId
+      ? {
+          ...event,
+          registrationCount: event.registrationCount + 1,
+          remainingSeats: event.remainingSeats - 1,
+          attendeeRegistered: true,
+          isFull: event.remainingSeats - 1 <= 0,
+        }
+      : event
+  )
+);
     console.log(
       res.data
     );
@@ -149,7 +162,8 @@ setSort("newest");
 
 ) : (
 events.map((event) => {
-
+console.log("Logged in user:", user);
+console.log("Organizer:", event.organizerId);
   const canManage =
     user?.role === ROLES.ADMIN ||
     (
@@ -159,7 +173,7 @@ events.map((event) => {
         event.organizerId?._id === user.id
       )
     );
-
+console.log("Can Manage:", canManage);
   return (
 <EventCard
   key={event._id}
@@ -175,23 +189,54 @@ events.map((event) => {
 
 {" "}
 
-  {user?.role === ROLES.ATTENDEE && (
-    <button
-      disabled={loading}
-      onClick={() => registerEvent(event._id)}
-    >
-      Register
-    </button>
-  )}{" "}
+{user?.role === ROLES.ATTENDEE && (
+  <>
+    {event.attendeeRegistered ? (
+      <button disabled>
+        ✓ Already Registered
+      </button>
+    ) : event.isFull ? (
+      <button disabled>
+        Event Full
+      </button>
+    ) : event.status === "Completed" ? (
+      <button disabled>
+        Completed
+      </button>
+    ) : event.status === "Cancelled" ? (
+      <button disabled>
+        Cancelled
+      </button>
+    ) : (
+      <button
+        disabled={loading}
+        onClick={() => registerEvent(event._id)}
+      >
+        Register
+      </button>
+    )}
+  </>
+)}
+  
+{" "}
 
   {canManage && (
     <>
+
+      <Link
+  className="button-link"
+  to={getAttendeesRoute(event._id)}
+>
+  View Attendees
+</Link>
+{" "}
       <Link
         className="button-link"
-        to={`/edit-event/${event._id}`}
+        to={getEditEventRoute(event._id)}
       >
         Edit
-      </Link>{" "}
+      </Link>
+{" "}
 
       <button
         onClick={() => deleteEvent(event._id)}

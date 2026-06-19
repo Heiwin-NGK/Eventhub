@@ -9,9 +9,10 @@ export const ROUTES = {
   ANALYTICS: "/analytics",
   REPORTS: "/reports",
   PROFILE: "/profile",
-  EDIT_EVENT: "/edit-event/:id",  
-  EVENT_DETAILS: "/events/:id",
+  EDIT_EVENT: "/edit-event/:id",
+  ATTENDEES: "/events/:id/attendees",  
 };
 
+export const getAttendeesRoute = (id) =>  `/events/${id}/attendees`;
 export const getEventDetailsRoute = (id) => `/events/${id}`;
 export const getEditEventRoute = (id) => `/edit-event/${id}`;

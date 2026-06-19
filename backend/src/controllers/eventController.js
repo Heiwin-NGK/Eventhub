@@ -1,5 +1,7 @@
 const Event = require("../models/Event");
+const Registration = require("../models/Registration");
 const mongoose = require("mongoose");
+const getEventStatus = require("../utils/eventStatus");
 
 exports.createEvent = async (req, res) => {
   try {
@@ -74,9 +76,27 @@ mongoQuery.sort({
 createdAt:-1,
 });
 }
+
 const events = await mongoQuery.populate(
-"organizerId","name email role");
-res.status(200).json(events);
+  "organizerId",
+  "name email role"
+);
+const result = await Promise.all(
+  events.map(async (event) => {
+    const registrationCount = await Registration.countDocuments({
+      eventId: event._id,
+    });
+    const status = getEventStatus(event);
+    return {
+      ...event.toObject(),
+      status,
+      registrationCount,
+      remainingSeats: event.capacity - registrationCount,
+      isFull: registrationCount >= event.capacity,
+    };
+  })
+);
+res.status(200).json(result);
 }catch(error){
 res.status(500).json({
 message:error.message,
@@ -104,7 +124,28 @@ const event = await Event.findById(req.params.id).populate(
         message: "Event not found",
       });
     }
-    res.status(200).json(event);
+const registrationCount = await Registration.countDocuments({
+  eventId: event._id,
+});
+
+const attendeeRegistered = req.user
+  ? await Registration.exists({
+      eventId: event._id,
+      userId: req.user._id,
+    })
+  : false;
+
+const status = getEventStatus(event);
+
+res.status(200).json({
+  ...event.toObject(),
+  status,
+  registrationCount,
+  remainingSeats: event.capacity - registrationCount,
+  isFull: registrationCount >= event.capacity,
+  attendeeRegistered: !!attendeeRegistered,
+});
+
   } catch (error) {
     res.status(500).json({
       message: error.message,

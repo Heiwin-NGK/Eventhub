@@ -14,6 +14,7 @@ import { ROLES } from "./constants/roles";
 import { ROUTES } from "./constants/routes";
 import RoleRoute from "./routes/RoleRoute";
 import EventDetails from "./pages/EventDetails";
+import EventAttendees from "./pages/EventAttendees";
 
 function App() {
   return (
@@ -123,6 +124,22 @@ element={
     <ProtectedRoute>
       <RoleRoute roles={[ROLES.ADMIN, ROLES.ORGANIZER]}>
         <EditEvent />
+      </RoleRoute>
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path={ROUTES.ATTENDEES}
+  element={
+    <ProtectedRoute>
+      <RoleRoute
+        roles={[
+          ROLES.ADMIN,
+          ROLES.ORGANIZER,
+        ]}
+      >
+        <EventAttendees />
       </RoleRoute>
     </ProtectedRoute>
   }

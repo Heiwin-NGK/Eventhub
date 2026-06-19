@@ -1,38 +1,68 @@
 import StatusBadge from "./StatusBadge";
+import CapacityBar from "./CapacityBar";
+import Countdown from "./Countdown";
+import { formatDate } from "../utils/dateFormatter";
 
-function EventCard({
+function EventCard({ event, children }) {
+  return (
+    <div className="card">
 
-event,
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <h2>{event.title}</h2>
 
-children,
+        <StatusBadge
+          status={event.isFull ? "Full" : event.status}
+        />
+      </div>
 
-}) {
+      <p>
+        <strong>Type:</strong> {event.eventType}
+      </p>
 
-return (
+      <p>
+        📍 {event.venue}
+      </p>
 
-<div className="card">
+      <p>
+        📅 {formatDate(event.startDate)}
+      </p>
 
-<h2>{event.title}</h2>
+      <CapacityBar
+        current={event.registrationCount}
+        total={event.capacity}
+      />
 
-<StatusBadge status={event.status}/>
+      <p>
+        👥 Registered: {event.registrationCount}
+      </p>
 
-<p><strong>Type:</strong> {event.eventType}</p>
+      <p>
+        💺 Remaining: {event.remainingSeats}
+      </p>
 
-<hr />
+      <Countdown
+        startDate={event.startDate}
+        endDate={event.endDate}
+      />
 
-<p> 📍 {event.venue}</p>
+      <hr />
 
-<p>📅 {new Date(event.startDate).toLocaleDateString()}</p>
+      <div
+        style={{
+          marginTop: "15px",
+        }}
+      >
+        {children}
+      </div>
 
-<p>👥 Capacity: {event.capacity} </p>
-
-
-<div style={{marginTop:"15px",}}>{children}</div>
-
-</div>
-
-);
-
+    </div>
+  );
 }
 
 export default EventCard;

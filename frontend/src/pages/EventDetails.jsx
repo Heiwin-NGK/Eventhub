@@ -9,7 +9,10 @@ import { getErrorMessage } from "../utils/errorHandler";
 import StatusBadge from "../components/StatusBadge";
 import SectionCard from "../components/SectionCard";
 import EventInfo from "../components/EventInfo";
-import { ROUTES } from "../constants/routes";
+import { ROUTES,getAttendeesRoute,getEditEventRoute, } from "../constants/routes";
+import CapacityBar from "../components/CapacityBar";
+import Countdown from "../components/Countdown";
+import { formatDate } from "../utils/dateFormatter";
 
 function EventDetails(){
 const {id}=useParams();
@@ -66,15 +69,17 @@ return(
 
 </p>
 
+<p>
+<strong>Type:</strong> {event.eventType}
+</p>
+
 <StatusBadge
-status={event.status}
+  status={event.isFull ? "Full" : event.status}
 />
 
 </div>
 
-<SectionCard
-title="Description"
->
+<SectionCard title="Description">
 
 <p>
 
@@ -84,13 +89,11 @@ title="Description"
 
 </SectionCard>
 
-<SectionCard
-title="Organizer"
->
+<SectionCard title="Organizer">
 
 <EventInfo
 label="Name"
-value={event.organizerId?.name || "unknown"}
+value={event.organizerId?.name || "Unknown"}
 />
 
 <EventInfo
@@ -100,9 +103,7 @@ value={event.organizerId?.email || "N/A"}
 
 </SectionCard>
 
-<SectionCard
-title="Venue"
->
+<SectionCard title="Venue">
 
 <EventInfo
 
@@ -119,48 +120,44 @@ title="Schedule"
 >
 
 <EventInfo
-
 label="Start"
-
-value={
-new Date(
-event.startDate
-).toLocaleDateString()
-}
-
+value={formatDate(event.startDate)}
 />
 
 <EventInfo
-
 label="End"
-
-value={
-new Date(
-event.endDate
-).toLocaleDateString()
-}
-
+value={formatDate(event.endDate)}
 />
 
 </SectionCard>
 
-<SectionCard
-title="Capacity"
->
+<SectionCard title="Event Status">
+
+  <Countdown
+    startDate={event.startDate}
+    endDate={event.endDate}
+  />
+
+</SectionCard>
+
+<SectionCard title="Capacity">
 
 <EventInfo
-
-label="Maximum"
-
-value={event.capacity}
-
+label="Registered"
+value={event.registrationCount}
 />
-
 <EventInfo
 label="Remaining"
-value="Coming Soon"
+value={event.remainingSeats}
 />
-
+<EventInfo
+label="Maximum"
+value={event.capacity}
+/>
+<CapacityBar
+  current={event.registrationCount}
+  total={event.capacity}
+/>
 </SectionCard>
 
 <div className="card" >
@@ -176,10 +173,21 @@ className="button-link"
 
 {canManage && (
 <>
-<Link>
-Edit Event
+<Link
+  className="button-link"
+  to={getAttendeesRoute(event._id)}
+>
+  View Attendees
 </Link>
 
+{" "}
+
+<Link
+  className="button-link"
+  to={getEditEventRoute(event._id)}
+>
+  Edit Event
+</Link>
 <button>
 Delete
 </button>
@@ -187,9 +195,29 @@ Delete
 )}
 
 {user?.role === ROLES.ATTENDEE && (
-<button>
-Register
-</button>
+  <>
+    {event.attendeeRegistered ? (
+      <button disabled>
+        ✓ Already Registered
+      </button>
+    ) : event.isFull ? (
+      <button disabled>
+        Event Full
+      </button>
+    ) : event.status === "Completed" ? (
+      <button disabled>
+        Completed
+      </button>
+    ) : event.status === "Cancelled" ? (
+      <button disabled>
+        Cancelled
+      </button>
+    ) : (
+      <button>
+        Register
+      </button>
+    )}
+  </>
 )}
 
 </div>
