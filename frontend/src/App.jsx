@@ -15,6 +15,7 @@ import { ROUTES } from "./constants/routes";
 import RoleRoute from "./routes/RoleRoute";
 import EventDetails from "./pages/EventDetails";
 import EventAttendees from "./pages/EventAttendees";
+import TicketDetails from "./pages/TicketDetails";
 
 function App() {
   return (
@@ -141,6 +142,15 @@ element={
       >
         <EventAttendees />
       </RoleRoute>
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path={ROUTES.TICKET_DETAILS}
+  element={
+    <ProtectedRoute>
+      <TicketDetails />
     </ProtectedRoute>
   }
 />

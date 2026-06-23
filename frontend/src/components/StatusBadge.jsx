@@ -18,9 +18,17 @@ function StatusBadge({ status }) {
       color = "#343a40";
       break;
 
-    case "Cancelled":
-      color = "#dc3545";
-      break;
+case "registered":
+  color = "#2563eb";
+  break;
+
+case "checked_in":
+  color = "#16a34a";
+  break;
+
+case "cancelled":
+  color = "#dc2626";
+  break;
 
     case "Full":
       color = "#dc3545";

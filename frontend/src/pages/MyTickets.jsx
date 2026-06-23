@@ -6,6 +6,7 @@ import axios from "../api/axios";
 import Navbar from "../components/Navbar";
 import { getErrorMessage } from "../utils/errorHandler";
 import { showSuccess } from "../utils/successHandler";
+import TicketCard from "../components/TicketCard";
 
 function MyTickets() {
 
@@ -58,31 +59,15 @@ return <Loader />;
 
 ) : (
 
-tickets.map(
-        (ticket) => (
-          <div className="container"
-            key={
-              ticket._id
-            }
-            className="card"
-          >
-            <h3>
-              {
-                ticket.ticketId
-              }
-            </h3>
+tickets.map((ticket) => (
 
-            <p>
-              Event:
-              {
-                ticket.eventId
-                  ?.title
-              }
-            </p>
+  <TicketCard
+    key={ticket._id}
+    ticket={ticket}
+  />
 
-          </div>
-        )
-      ) )}
+))
+)}
     </>
   );
 }

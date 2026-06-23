@@ -1,0 +1,290 @@
+/* ==========================================================
+   EVENTHUB PRINTABLE TICKET
+========================================================== */
+
+.print-ticket{
+    width:1100px;
+    background:#ffffff;
+    border:1px solid #dbe4f1;
+    border-radius:24px;
+    overflow:hidden;
+    box-shadow:0 18px 45px rgba(0,0,0,.18);
+    font-family:Arial,Helvetica,sans-serif;
+    position:relative;
+}
+
+/* ==========================================================
+   Ticket Cutouts
+========================================================== */
+
+.print-ticket::before,
+.print-ticket::after{
+    content:"";
+    position:absolute;
+    width:34px;
+    height:34px;
+    background:#f5f7fb;
+    border-radius:50%;
+    top:120px;
+    z-index:10;
+}
+
+.print-ticket::before{
+    left:-17px;
+}
+
+.print-ticket::after{
+    right:-17px;
+}
+
+/* ==========================================================
+   Header
+========================================================== */
+
+.ticket-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:28px 35px;
+    background:linear-gradient(135deg,#003b95,#0058d9);
+    color:#fff;
+    position:relative;
+    overflow:hidden;
+}
+
+.ticket-header::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background-image:radial-gradient(rgba(255,255,255,.12) 1px,transparent 1px);
+    background-size:16px 16px;
+}
+
+.ticket-header::after{
+    content:"🎟";
+    position:absolute;
+    right:40px;
+    top:10px;
+    font-size:130px;
+    opacity:.08;
+    transform:rotate(-20deg);
+}
+
+.header-left,
+.header-right{
+    position:relative;
+    z-index:2;
+}
+
+.header-left h1{
+    margin:0;
+    font-size:36px;
+    letter-spacing:2px;
+}
+
+.header-left p{
+    margin-top:8px;
+    font-size:17px;
+}
+
+.header-right{
+    text-align:right;
+}
+
+.header-right h3{
+    margin:0;
+    font-size:24px;
+}
+
+.header-right p{
+    margin-top:8px;
+    font-size:15px;
+}
+
+/* ==========================================================
+   Event
+========================================================== */
+
+.ticket-event{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:22px 35px;
+}
+
+.ticket-event h2{
+    margin:0;
+    font-size:32px;
+    color:#0f172a;
+}
+
+.ticket-event p{
+    margin-top:8px;
+    color:#64748b;
+}
+
+/* ==========================================================
+   Divider
+========================================================== */
+
+.ticket-divider{
+    margin:0 35px;
+    border-top:2px dashed #cbd5e1;
+}
+
+/* ==========================================================
+   Main Content
+========================================================== */
+
+.ticket-content{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:30px;
+    padding:25px 35px;
+}
+
+.ticket-panel{
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+}
+
+.panel{
+    background:#fafcff;
+    border:1px solid #dbe4f1;
+    border-radius:16px;
+    padding:18px;
+}
+
+.panel h3{
+    margin:0 0 14px;
+    color:#1d4ed8;
+    font-size:19px;
+    border-bottom:2px solid #dbe4f1;
+    padding-bottom:8px;
+}
+
+/* ==========================================================
+   Info Rows
+========================================================== */
+
+.info-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:15px;
+    padding:10px 0;
+    border-bottom:1px solid #edf2f7;
+}
+
+.info-row:last-child{
+    border-bottom:none;
+}
+
+.info-label{
+    font-weight:600;
+    color:#475569;
+    min-width:110px;
+}
+
+.info-value{
+    text-align:right;
+    color:#0f172a;
+    word-break:break-word;
+}
+
+/* ==========================================================
+   QR
+========================================================== */
+
+.ticket-qr-section{
+    padding:25px 35px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+}
+
+.ticket-qr-section p{
+    margin:0;
+    font-size:18px;
+    color:#334155;
+    font-weight:600;
+}
+
+.ticket-qr{
+    width:180px;
+    height:180px;
+    margin:20px 0;
+    padding:12px;
+    border-radius:12px;
+    border:3px solid #2563eb;
+    background:#fff;
+    box-shadow:0 6px 18px rgba(0,0,0,.08);
+}
+
+.ticket-qr-section small{
+    color:#64748b;
+    font-size:14px;
+}
+
+/* ==========================================================
+   Footer
+========================================================== */
+
+.ticket-footer{
+    background:#eef4ff;
+    border-top:1px solid #dbe4f1;
+    text-align:center;
+    padding:16px;
+    font-size:18px;
+    font-weight:700;
+    color:#2563eb;
+}
+
+/* ==========================================================
+   Status Badge
+========================================================== */
+
+.ticket-event span{
+    font-size:14px !important;
+    padding:8px 18px !important;
+    border-radius:30px !important;
+}
+
+/* ==========================================================
+   Responsive
+========================================================== */
+
+@media(max-width:1150px){
+
+.print-ticket{
+    width:100%;
+}
+
+.ticket-content{
+    grid-template-columns:1fr;
+}
+
+.ticket-event{
+    flex-direction:column;
+    text-align:center;
+    gap:15px;
+}
+
+.ticket-header{
+    flex-direction:column;
+    text-align:center;
+    gap:15px;
+}
+
+.header-right{
+    text-align:center;
+}
+
+.print-ticket::before,
+.print-ticket::after{
+    display:none;
+}
+
+}

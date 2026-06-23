@@ -4,6 +4,7 @@ const router = express.Router();
 
 const {
   getMyTickets,
+  getTicketById
 } = require("../controllers/ticketController");
 
 const {
@@ -14,6 +15,12 @@ router.get(
   "/my",
   protect,
   getMyTickets
+);
+
+router.get(
+  "/:id",
+  protect,
+  getTicketById
 );
 
 module.exports = router;

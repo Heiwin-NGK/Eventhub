@@ -1,0 +1,232 @@
+/* ==========================================================
+   Overlay
+========================================================== */
+
+.ticket-modal-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.65);
+    backdrop-filter:blur(8px);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+    animation:fadeIn .25s ease;
+}
+
+/* ==========================================================
+   Modal
+========================================================== */
+
+.ticket-modal{
+    width:90vw;
+    max-width:1400px;
+    height:90vh;
+    background:#f4f7fb;
+    border-radius:18px;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+    box-shadow:0 25px 60px rgba(0,0,0,.35);
+    animation:scaleIn .25s ease;
+}
+
+/* ==========================================================
+   Fullscreen
+========================================================== */
+
+.ticket-modal.fullscreen{
+    width:100vw;
+    height:100vh;
+    border-radius:0;
+    max-width:none;
+}
+
+/* ==========================================================
+   Header
+========================================================== */
+
+.ticket-modal-header{
+    background:#0f172a;
+    color:#fff;
+    padding:18px 24px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    border-bottom:1px solid rgba(255,255,255,.08);
+}
+
+.ticket-modal-header h2{
+    margin:0;
+    font-size:24px;
+    font-weight:700;
+}
+
+/* ==========================================================
+   Action Buttons
+========================================================== */
+
+.ticket-modal-actions{
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+}
+
+.ticket-modal-actions button{
+    border:none;
+    outline:none;
+    cursor:pointer;
+    padding:10px 18px;
+    border-radius:8px;
+    font-size:15px;
+    font-weight:600;
+    transition:.25s;
+    background:#2563eb;
+    color:white;
+}
+
+.ticket-modal-actions button:hover{
+    background:#1d4ed8;
+    transform:translateY(-2px);
+}
+
+.ticket-modal-actions button:last-child{
+    background:#dc2626;
+}
+
+.ticket-modal-actions button:last-child:hover{
+    background:#b91c1c;
+}
+
+/* ==========================================================
+   Body
+========================================================== */
+
+.ticket-modal-body{
+    flex:1;
+    overflow:auto;
+    padding:40px;
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    background:#eef2f7;
+}
+
+/* ==========================================================
+   Printable Ticket Scaling
+========================================================== */
+
+.ticket-modal-body .print-ticket{
+    transform-origin:top center;
+    transform:scale(.82);
+    margin-bottom:-140px;
+}
+
+/* Fullscreen Preview */
+
+.ticket-modal.fullscreen .ticket-modal-body .print-ticket{
+    transform:scale(1);
+    margin-bottom:40px;
+}
+
+/* ==========================================================
+   Scrollbar
+========================================================== */
+
+.ticket-modal-body::-webkit-scrollbar{
+    width:10px;
+}
+
+.ticket-modal-body::-webkit-scrollbar-thumb{
+    background:#94a3b8;
+    border-radius:10px;
+}
+
+.ticket-modal-body::-webkit-scrollbar-track{
+    background:#e2e8f0;
+}
+
+/* ==========================================================
+   Animations
+========================================================== */
+
+@keyframes fadeIn{
+
+from{
+opacity:0;
+}
+
+to{
+opacity:1;
+}
+
+}
+
+@keyframes scaleIn{
+
+from{
+opacity:0;
+transform:scale(.95);
+}
+
+to{
+opacity:1;
+transform:scale(1);
+}
+
+}
+
+/* ==========================================================
+   Responsive
+========================================================== */
+
+@media(max-width:1200px){
+
+.ticket-modal{
+    width:95vw;
+    height:95vh;
+}
+
+.ticket-modal-header{
+    flex-direction:column;
+    gap:15px;
+    text-align:center;
+}
+
+.ticket-modal-actions{
+    justify-content:center;
+}
+
+.ticket-modal-body{
+    padding:20px;
+}
+
+.ticket-modal-body .print-ticket{
+    transform:scale(.55);
+    margin-bottom:-280px;
+}
+
+.ticket-modal.fullscreen .ticket-modal-body .print-ticket{
+    transform:scale(.75);
+    margin-bottom:-120px;
+}
+
+}
+
+@media(max-width:768px){
+
+.ticket-modal-body .print-ticket{
+    transform:scale(.42);
+    margin-bottom:-420px;
+}
+
+.ticket-modal.fullscreen .ticket-modal-body .print-ticket{
+    transform:scale(.55);
+    margin-bottom:-280px;
+}
+
+.ticket-modal-actions button{
+    width:100%;
+}
+
+}

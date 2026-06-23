@@ -14,6 +14,14 @@ const ticketService = {
     return await axios.get(`/verify/${ticketId}`);
   },
 
+  getTicketById: async (id, token) => {
+  return await axios.get(`/tickets/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+},
+
 };
 
 export default ticketService;
