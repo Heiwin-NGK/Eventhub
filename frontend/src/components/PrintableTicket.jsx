@@ -189,11 +189,36 @@ function PrintableTicket({ ticket }) {
 
       {/* ================= Footer ================= */}
 
-      <footer className="ticket-footer">
+<div className="ticket-footer">
 
-        ⭐ Generated Securely by EventHub ⭐
+  <h3>
+    ⭐ Generated Securely by EventHub ⭐
+  </h3>
 
-      </footer>
+  <div className="ticket-security">
+
+    <p>
+      <strong>Ticket ID:</strong> {ticket.ticketId}
+    </p>
+
+    <p>
+      <strong>Issued:</strong>{" "}
+      {formatDate(ticket.issuedAt)}
+    </p>
+
+    <p>
+      <strong>Registered:</strong>{" "}
+      {formatDate(ticket.registrationDate)}
+    </p>
+
+    <p>
+      <strong>Security Notice:</strong>{" "}
+      Do not share this QR code or Ticket ID with others.
+    </p>
+
+  </div>
+
+</div>
 
     </div>
   );

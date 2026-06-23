@@ -41,14 +41,10 @@ function TicketDetails() {
 
       setTicket(res.data);
 
-    } catch (error) {
-
-      alert(
-        getErrorMessage(error)
-      );
-
+    }catch (error) {
+  console.error(error);
+  setTicket(null);
     } finally {
-
       setLoading(false);
 
     }
@@ -75,11 +71,31 @@ const downloadTicket = async () => {
 };
   if (loading)
     return <Loader />;
-
-  if (!ticket)
-    return (
-      <EmptyState title="Ticket Not Found" />
-    );
+if (!ticket) {
+  return (
+    <>
+      <Navbar />
+      <div className="container">
+        <div className="card" style={{ textAlign: "center" }}>
+          <h1 style={{ fontSize: "70px", marginBottom: "10px" }}>
+            🎟
+          </h1>
+          <h2>Ticket Not Found</h2>
+          <p style={{ color: "#666" }}>
+            The ticket you are looking for does not exist or has been removed.
+          </p>
+          <br />
+          <Link
+            className="button-link"
+            to={ROUTES.TICKETS}
+          >
+            ← Back to My Tickets
+          </Link>
+        </div>
+      </div>
+    </>
+  );
+}
 
   return (
     <>

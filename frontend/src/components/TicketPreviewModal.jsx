@@ -69,6 +69,50 @@ function TicketPreviewModal({
     link.click();
   };
 
+const printTicket = () => {
+  const printContents = printableRef.current.innerHTML;
+
+  const printWindow = window.open("", "", "width=1200,height=900");
+
+  printWindow.document.write(`
+    <html>
+      <head>
+        <title>${ticket.ticketId}</title>
+
+        <style>
+          body{
+            margin:20px;
+            background:#f5f5f5;
+            display:flex;
+            justify-content:center;
+          }
+
+          img{
+            max-width:100%;
+          }
+        </style>
+
+      </head>
+
+      <body>
+
+        ${printContents}
+
+      </body>
+
+    </html>
+  `);
+
+  printWindow.document.close();
+
+  printWindow.focus();
+
+  setTimeout(() => {
+    printWindow.print();
+    printWindow.close();
+  }, 500);
+};
+
   return (
     <div className="ticket-modal-overlay">
 
@@ -95,6 +139,11 @@ function TicketPreviewModal({
             >
               ⬇ Download PNG
             </button>
+<button
+  onClick={printTicket}
+>
+  🖨 Print
+</button>
 
             <button
               onClick={() =>
