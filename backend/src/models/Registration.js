@@ -18,6 +18,17 @@ const registrationSchema = new mongoose.Schema(
       type: String,
       default: "registered",
     },
+
+    checkedInAt: {
+      type: Date,
+      default: null,
+    },
+
+    checkedInBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
   },
   {
     timestamps: true,

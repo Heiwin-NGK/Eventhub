@@ -21,28 +21,6 @@ exports.getMyTickets = async (
     });
   }
 };
-
-exports.getTicketById = async (req, res) => {
-  try {
-    const ticket = await Ticket.findById(req.params.id)
-      .populate("eventId")
-      .populate("userId", "name email");
-
-    if (!ticket) {
-      return res.status(404).json({
-        message: "Ticket not found",
-      });
-    }
-
-    res.status(200).json(ticket);
-
-  } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
-  }
-};
-
 exports.getTicketById = async (req, res) => {
   try {
 
@@ -62,10 +40,10 @@ exports.getTicketById = async (req, res) => {
       });
     }
 
-    const registration = await Registration.findOne({
-      eventId: ticket.eventId._id,
-      userId: ticket.userId._id,
-    });
+const registration = await Registration.findOne({
+  userId: ticket.userId._id,
+  eventId: ticket.eventId._id,
+}).populate("checkedInBy", "name email");
 
     res.status(200).json({
       ...ticket.toObject(),
@@ -79,5 +57,92 @@ exports.getTicketById = async (req, res) => {
       message: error.message,
     });
 
+  }
+};
+
+exports.verifyTicket = async (req, res) => {
+  try {
+    const ticket = await Ticket.findOne({
+      ticketId: req.params.ticketId,
+    })
+      .populate("userId", "name email")
+      .populate({
+        path: "eventId",
+        populate: {
+          path: "organizerId",
+          select: "name email",
+        },
+      });
+
+    if (!ticket) {
+      return res.status(404).json({
+        valid: false,
+        message: "Ticket not found",
+      });
+    }
+
+const registration = await Registration.findOne({
+  userId: ticket.userId._id,
+  eventId: ticket.eventId._id,
+}).populate("checkedInBy", "name email");
+res.status(200).json({
+  valid: true,
+  checkedIn: registration?.status === "checked_in",
+  registrationStatus: registration?.status || "registered",
+  checkedInAt: registration?.checkedInAt,
+  checkedInBy: registration?.checkedInBy,
+  ticket,
+});
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+exports.checkInTicket = async (req, res) => {
+  try {
+    const ticket = await Ticket.findOne({
+      ticketId: req.params.ticketId,
+    });
+
+    if (!ticket) {
+      return res.status(404).json({
+        message: "Ticket not found",
+      });
+    }
+
+const registration = await Registration.findOne({
+  userId: ticket.userId._id,
+  eventId: ticket.eventId._id,
+}).populate("checkedInBy", "name email");
+
+    if (!registration) {
+      return res.status(404).json({
+        message: "Registration not found",
+      });
+    }
+
+    if (registration.status === "checked_in") {
+      return res.status(400).json({
+        message: "Attendee has already checked in",
+      });
+    }
+
+    registration.status = "checked_in";
+    registration.checkedInAt = new Date();
+    registration.checkedInBy = req.user._id;
+
+    await registration.save();
+
+    res.status(200).json({
+      message: "Check-in successful",
+      registration,
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
   }
 };

@@ -16,6 +16,7 @@ import RoleRoute from "./routes/RoleRoute";
 import EventDetails from "./pages/EventDetails";
 import EventAttendees from "./pages/EventAttendees";
 import TicketDetails from "./pages/TicketDetails";
+import ScanTicket from "./pages/ScanTicket";
 
 function App() {
   return (
@@ -106,6 +107,22 @@ element={
   element={
     <ProtectedRoute>
       <Profile />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path={ROUTES.SCAN_TICKET}
+  element={
+    <ProtectedRoute>
+      <RoleRoute
+        roles={[
+          ROLES.ADMIN,
+          ROLES.ORGANIZER,
+        ]}
+      >
+        <ScanTicket />
+      </RoleRoute>
     </ProtectedRoute>
   }
 />

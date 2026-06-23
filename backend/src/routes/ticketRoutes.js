@@ -4,23 +4,19 @@ const router = express.Router();
 
 const {
   getMyTickets,
-  getTicketById
+  getTicketById,
+  verifyTicket,
+  checkInTicket,
 } = require("../controllers/ticketController");
 
-const {
-  protect,
-} = require("../middleware/authMiddleware");
+const { protect,} = require("../middleware/authMiddleware");
 
-router.get(
-  "/my",
-  protect,
-  getMyTickets
-);
+router.get("/my", protect, getMyTickets);
 
-router.get(
-  "/:id",
-  protect,
-  getTicketById
-);
+router.get("/verify/:ticketId", protect, verifyTicket);
+
+router.patch("/checkin/:ticketId", protect, checkInTicket);
+
+router.get("/:id", protect, getTicketById);
 
 module.exports = router;

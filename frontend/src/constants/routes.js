@@ -12,9 +12,12 @@ export const ROUTES = {
   EDIT_EVENT: "/edit-event/:id",
   ATTENDEES: "/events/:id/attendees",
   TICKET_DETAILS: "/tickets/:id",  
+  SCAN_TICKET: "/scan-ticket",
 };
 
 export const getAttendeesRoute = (id) =>  `/events/${id}/attendees`;
 export const getEventDetailsRoute = (id) => `/events/${id}`;
 export const getEditEventRoute = (id) => `/edit-event/${id}`;
 export const getTicketDetailsRoute = (id) => `/tickets/${id}`;
+export const getScanTicketRoute = () => "/scan-ticket";
+

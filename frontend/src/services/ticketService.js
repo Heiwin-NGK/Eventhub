@@ -9,17 +9,33 @@ const ticketService = {
       },
     });
   },
-
-  verifyTicket: async (ticketId) => {
-    return await axios.get(`/verify/${ticketId}`);
-  },
-
-  getTicketById: async (id, token) => {
+getTicketById: async (id, token) => {
   return await axios.get(`/tickets/${id}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
+},
+verifyTicket: async (ticketId, token) => {
+  return await axios.get(
+    `/tickets/verify/${ticketId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+},
+checkInTicket: async (ticketId, token) => {
+  return await axios.patch(
+    `/tickets/checkin/${ticketId}`,
+    {},
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
 },
 
 };

@@ -33,6 +33,13 @@ const handleLogout = () => {
 
 {(user?.role === ROLES.ADMIN ||
   user?.role === ROLES.ORGANIZER) && (
+  <Link to={ROUTES.SCAN_TICKET}>
+    Scan Tickets
+  </Link>
+)}
+
+{(user?.role === ROLES.ADMIN ||
+  user?.role === ROLES.ORGANIZER) && (
   <>
     <Link to={ROUTES.ANALYTICS}>Analytics</Link>
 
