@@ -31,19 +31,18 @@ const handleLogout = () => {
   <Link to={ROUTES.NOTIFICATIONS}>Notifications</Link>
 )}
 
-{(user?.role === ROLES.ADMIN ||
-  user?.role === ROLES.ORGANIZER) && (
-  <Link to={ROUTES.SCAN_TICKET}>
-    Scan Tickets
-  </Link>
-)}
 
 {(user?.role === ROLES.ADMIN ||
   user?.role === ROLES.ORGANIZER) && (
   <>
+    <Link to={ROUTES.SCAN_TICKET}> Scan Tickets</Link>
+    
+    <Link to={ROUTES.CHECKIN_HISTORY}>Check-In History</Link>
+    
     <Link to={ROUTES.ANALYTICS}>Analytics</Link>
 
     <Link to={ROUTES.REPORTS}>Reports</Link>
+    
   </>
 )}
 

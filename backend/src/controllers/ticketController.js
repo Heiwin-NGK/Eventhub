@@ -85,13 +85,41 @@ const registration = await Registration.findOne({
   userId: ticket.userId._id,
   eventId: ticket.eventId._id,
 }).populate("checkedInBy", "name email");
+const registrationCount =
+await Registration.countDocuments({
+    eventId: ticket.eventId._id,
+});
+
+const checkedInCount =
+await Registration.countDocuments({
+    eventId: ticket.eventId._id,
+    status: "checked_in",
+});
+const capacity = ticket.eventId.capacity;
 res.status(200).json({
-  valid: true,
-  checkedIn: registration?.status === "checked_in",
-  registrationStatus: registration?.status || "registered",
-  checkedInAt: registration?.checkedInAt,
-  checkedInBy: registration?.checkedInBy,
-  ticket,
+    valid: true,
+    checkedIn:
+        registration?.status === "checked_in",
+    registrationStatus:
+        registration?.status || "registered",
+    checkedInAt:
+        registration?.checkedInAt,
+    checkedInBy:
+        registration?.checkedInBy,
+    statistics: {
+        capacity,
+        registered:
+            registrationCount,
+        checkedIn:
+            checkedInCount,
+        remaining:
+            registrationCount - checkedInCount,
+        occupancy:
+            Math.round(
+                (checkedInCount / capacity) * 100
+            ),
+    },
+    ticket,
 });
   } catch (error) {
     res.status(500).json({
@@ -139,6 +167,24 @@ const registration = await Registration.findOne({
       message: "Check-in successful",
       registration,
     });
+
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+exports.getCheckInHistory = async (req, res) => {
+  try {
+    const registrations = await Registration.find({
+      status: "checked_in",
+    })
+      .populate("userId", "name email")
+      .populate("eventId", "title venue")
+      .populate("checkedInBy", "name email")
+      .sort({ checkedInAt: -1 });
+
+    res.status(200).json(registrations);
 
   } catch (error) {
     res.status(500).json({

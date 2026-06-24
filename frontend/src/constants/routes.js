@@ -13,6 +13,7 @@ export const ROUTES = {
   ATTENDEES: "/events/:id/attendees",
   TICKET_DETAILS: "/tickets/:id",  
   SCAN_TICKET: "/scan-ticket",
+  CHECKIN_HISTORY: "/checkin-history",
 };
 
 export const getAttendeesRoute = (id) =>  `/events/${id}/attendees`;

@@ -37,6 +37,16 @@ checkInTicket: async (ticketId, token) => {
     }
   );
 },
+getCheckInHistory: async (token) => {
+  return await axios.get(
+    "/tickets/history",
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+},
 
 };
 

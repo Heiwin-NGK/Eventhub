@@ -17,6 +17,7 @@ import EventDetails from "./pages/EventDetails";
 import EventAttendees from "./pages/EventAttendees";
 import TicketDetails from "./pages/TicketDetails";
 import ScanTicket from "./pages/ScanTicket";
+import CheckInHistory from "./pages/CheckInHistory";
 
 function App() {
   return (
@@ -170,6 +171,14 @@ element={
       <TicketDetails />
     </ProtectedRoute>
   }
+/>
+<Route
+    path={ROUTES.CHECKIN_HISTORY}
+    element={
+        <ProtectedRoute>
+            <CheckInHistory />
+        </ProtectedRoute>
+    }
 />
 
       </Routes>
