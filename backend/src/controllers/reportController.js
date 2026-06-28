@@ -4,80 +4,121 @@ const Event = require("../models/Event");
 const Registration = require("../models/Registration");
 const Attendance = require("../models/Attendance");
 
+const catchAsync = require("../utils/catchAsync");
+const AppError = require("../utils/AppError");
+
 exports.getRegistrationReport =
-  async (req, res) => {
-    try {
+  catchAsync(
+    async (
+      req,
+      res,
+      next
+    ) => {
+      const event =
+        await Event.findById(
+          req.params.eventId
+        );
+
+      if (!event) {
+        return next(
+          new AppError(
+            "Event not found",
+            404
+          )
+        );
+      }
 
       const registrations =
         await Registration.find({
           eventId:
             req.params.eventId,
-        })
-          .populate(
-            "userId",
-            "name email"
-          );
+        }).populate(
+          "userId",
+          "name email"
+        );
 
       res.status(200).json(
         registrations
       );
-
-    } catch (error) {
-      res.status(500).json({
-        message:
-          error.message,
-      });
     }
-  };
+  );
 
-  exports.getAttendanceReport =
-  async (req, res) => {
-    try {
+exports.getAttendanceReport =
+  catchAsync(
+    async (
+      req,
+      res,
+      next
+    ) => {
+      const event =
+        await Event.findById(
+          req.params.eventId
+        );
+
+      if (!event) {
+        return next(
+          new AppError(
+            "Event not found",
+            404
+          )
+        );
+      }
 
       const attendance =
         await Attendance.find({
           eventId:
             req.params.eventId,
-        })
-          .populate(
-            "userId",
-            "name email"
-          );
+        }).populate(
+          "userId",
+          "name email"
+        );
 
       res.status(200).json(
         attendance
       );
-
-    } catch (error) {
-      res.status(500).json({
-        message:
-          error.message,
-      });
     }
-  };
+  );
 
-  exports.exportRegistrationsCSV =
-  async (req, res) => {
-    try {
+exports.exportRegistrationsCSV =
+  catchAsync(
+    async (
+      req,
+      res,
+      next
+    ) => {
+      const event =
+        await Event.findById(
+          req.params.eventId
+        );
+
+      if (!event) {
+        return next(
+          new AppError(
+            "Event not found",
+            404
+          )
+        );
+      }
 
       const registrations =
         await Registration.find({
           eventId:
             req.params.eventId,
-        })
-          .populate(
-            "userId",
-            "name email"
-          );
+        }).populate(
+          "userId",
+          "name email"
+        );
 
       const data =
         registrations.map(
           (r) => ({
             name:
-              r.userId.name,
+              r.userId?.name ||
+              "N/A",
 
             email:
-              r.userId.email,
+              r.userId?.email ||
+              "N/A",
 
             status:
               r.status,
@@ -99,14 +140,8 @@ exports.getRegistrationReport =
         "registrations.csv"
       );
 
-      return res.send(csv);
-
-    } catch (error) {
-      res.status(500).json({
-        message:
-          error.message,
-      });
+      res.status(200).send(
+        csv
+      );
     }
-  };
-
-  
+  );

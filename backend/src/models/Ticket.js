@@ -33,6 +33,13 @@ const ticketSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+ticketSchema.index({
+  userId: 1,
+});
+
+ticketSchema.index({
+  eventId: 1,
+});
 
 module.exports = mongoose.model(
   "Ticket",

@@ -4,24 +4,54 @@ const Ticket = require("../models/Ticket");
 const QRCode = require("qrcode");
 const mongoose = require("mongoose");
 
-exports.registerForEvent = async (req, res) => {
-  try {
+const catchAsync = require("../utils/catchAsync");
+const AppError = require("../utils/AppError");
+
+exports.registerForEvent = catchAsync(
+  async (req, res, next) => {
     const eventId = req.params.eventId;
 
-const event = await Event.findById(eventId);
-const registrationCount = await Registration.countDocuments({ eventId });
+    if (
+      !mongoose.Types.ObjectId.isValid(
+        eventId
+      )
+    ) {
+      return next(
+        new AppError(
+          "Invalid Event ID",
+          400
+        )
+      );
+    }
 
-if (registrationCount >= event.capacity) {
-  return res.status(400).json({
-    message: "Event is full",
-  });
-}
+    const event =
+      await Event.findById(eventId);
 
-if (!event) {
-  return res.status(404).json({
-      message: "Event not found",
- });
-}
+    if (!event) {
+      return next(
+        new AppError(
+          "Event not found",
+          404
+        )
+      );
+    }
+
+    const registrationCount =
+      await Registration.countDocuments({
+        eventId,
+      });
+
+    if (
+      registrationCount >=
+      event.capacity
+    ) {
+      return next(
+        new AppError(
+          "Event is full",
+          400
+        )
+      );
+    }
 
     const existingRegistration =
       await Registration.findOne({
@@ -29,10 +59,15 @@ if (!event) {
         eventId,
       });
 
-    if (existingRegistration) {
-      return res.status(400).json({
-        message: "Already registered",
-      });
+    if (
+      existingRegistration
+    ) {
+      return next(
+        new AppError(
+          "Already registered",
+          400
+        )
+      );
     }
 
     const registration =
@@ -40,153 +75,248 @@ if (!event) {
         userId: req.user._id,
         eventId,
       });
-    
-    const ticketId = "TICKET-" + Date.now();
-    const qrCode = await QRCode.toDataURL(ticketId);
-    const ticket = await Ticket.create({
-  ticketId,
-  qrCode,
-  userId: req.user._id,
-  eventId,
-});
 
-const updatedCount = await Registration.countDocuments({ eventId });
+    const ticketId =
+      "TICKET-" + Date.now();
 
-res.status(201).json({
-  registration,
-  ticket,
-  registrationCount: updatedCount,
-  remainingSeats: event.capacity - updatedCount,
-  isFull: updatedCount >= event.capacity,
-});
+    const qrCode =
+      await QRCode.toDataURL(
+        ticketId
+      );
 
-  } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
-  }
-};
-
-exports.getMyRegistrations = async (req, res) => {
-  try {
-
-    const registrations =
-      await Registration.find({
-        userId: req.user._id,
-      }).populate("eventId");
-
-    res.status(200).json(registrations);
-
-  } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
-  }
-};
-
-exports.getEventRegistrations = async (req, res) => {
-  try {
-    const event = await Event.findById(req.params.eventId)
-      .populate("organizerId", "name email");
-
-    if (!event) {
-      return res.status(404).json({
-        message: "Event not found",
+    const ticket =
+      await Ticket.create({
+        ticketId,
+        qrCode,
+        userId:
+          req.user._id,
+        eventId,
       });
-    }
 
-const registrations = await Registration.find({
-  eventId: req.params.eventId,
-})
-.populate("userId", "name email")
-.lean();
+    const updatedCount =
+      await Registration.countDocuments(
+        {
+          eventId,
+        }
+      );
 
-const registrationsWithTickets = await Promise.all(
-  registrations.map(async (registration) => {
-    const ticket = await Ticket.findOne({
-      eventId: registration.eventId,
-      userId: registration.userId._id,
-    }).select("ticketId");
-
-    return {
-      ...registration,
+    res.status(201).json({
+      registration,
       ticket,
-    };
-  })
+      registrationCount:
+        updatedCount,
+      remainingSeats:
+        Math.max(
+          0,
+          event.capacity -
+            updatedCount
+        ),
+      isFull:
+        updatedCount >=
+        event.capacity,
+    });
+  }
 );
 
-    const registrationCount = registrations.length;
+exports.getMyRegistrations =
+  catchAsync(
+    async (
+      req,
+      res,
+      next
+    ) => {
+      const registrations =
+        await Registration.find({
+          userId:
+            req.user._id,
+        }).populate(
+          "eventId"
+        );
 
-    res.status(200).json({
-      event: {
-        _id: event._id,
-        title: event.title,
-        description: event.description,
-        venue: event.venue,
-        eventType: event.eventType,
-        startDate: event.startDate,
-        endDate: event.endDate,
-        status: event.status,
-        capacity: event.capacity,
-        organizer: event.organizerId,
-        registrationCount,
-        remainingSeats: event.capacity - registrationCount,
-        occupancy: Math.round(
-          (registrationCount / event.capacity) * 100
-        ),
-      },
-      registrations: registrationsWithTickets,
-    });
+      res.status(200).json(
+        registrations
+      );
+    }
+  );
 
-  } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
-  }
-};
+exports.getEventRegistrations =
+  catchAsync(
+    async (
+      req,
+      res,
+      next
+    ) => {
+      const event =
+        await Event.findById(
+          req.params.eventId
+        ).populate(
+          "organizerId",
+          "name email"
+        );
 
-exports.removeRegistration = async (req, res) => {
-  try {
-    const registration = await Registration.findById(req.params.registrationId);
+      if (!event) {
+        return next(
+          new AppError(
+            "Event not found",
+            404
+          )
+        );
+      }
 
-    if (!registration) {
-      return res.status(404).json({
-        message: "Registration not found",
+      const registrations =
+        await Registration.find({
+          eventId:
+            req.params.eventId,
+        })
+          .populate(
+            "userId",
+            "name email"
+          )
+          .lean();
+
+      const registrationsWithTickets =
+        await Promise.all(
+          registrations.map(
+            async (
+              registration
+            ) => {
+              const ticket =
+                await Ticket.findOne(
+                  {
+                    eventId:
+                      registration.eventId,
+                    userId:
+                      registration
+                        .userId
+                        ._id,
+                  }
+                ).select(
+                  "ticketId"
+                );
+
+              return {
+                ...registration,
+                ticket,
+              };
+            }
+          )
+        );
+
+      const registrationCount =
+        registrations.length;
+
+      res.status(200).json({
+        event: {
+          _id: event._id,
+          title:
+            event.title,
+          description:
+            event.description,
+          venue:
+            event.venue,
+          eventType:
+            event.eventType,
+          startDate:
+            event.startDate,
+          endDate:
+            event.endDate,
+          status:
+            event.status,
+          capacity:
+            event.capacity,
+          organizer:
+            event.organizerId,
+          registrationCount,
+          remainingSeats:
+            Math.max(
+              0,
+              event.capacity -
+                registrationCount
+            ),
+          occupancy:
+            Math.round(
+              (registrationCount /
+                event.capacity) *
+                100
+            ),
+        },
+        registrations:
+          registrationsWithTickets,
       });
     }
+  );
 
-    await registration.deleteOne();
+exports.removeRegistration =
+  catchAsync(
+    async (
+      req,
+      res,
+      next
+    ) => {
+      const registration =
+        await Registration.findById(
+          req.params
+            .registrationId
+        );
 
-    res.status(200).json({
-      message: "Registration removed successfully",
-    });
+      if (
+        !registration
+      ) {
+        return next(
+          new AppError(
+            "Registration not found",
+            404
+          )
+        );
+      }
 
-  } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
-  }
-};
+      await Ticket.deleteOne({
+        eventId:
+          registration.eventId,
+        userId:
+          registration.userId,
+      });
 
-exports.updateRegistrationStatus = async (req, res) => {
-  try {
-    const registration = await Registration.findById(req.params.registrationId);
+      await registration.deleteOne();
 
-    if (!registration) {
-      return res.status(404).json({
-        message: "Registration not found",
+      res.status(200).json({
+        message:
+          "Registration removed successfully",
       });
     }
+  );
 
-    registration.status = req.body.status;
+exports.updateRegistrationStatus =
+  catchAsync(
+    async (
+      req,
+      res,
+      next
+    ) => {
+      const registration =
+        await Registration.findById(
+          req.params
+            .registrationId
+        );
 
-    await registration.save();
+      if (
+        !registration
+      ) {
+        return next(
+          new AppError(
+            "Registration not found",
+            404
+          )
+        );
+      }
 
-    res.status(200).json(registration);
+      registration.status =
+        req.body.status;
 
-  } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
-  }
-};
+      await registration.save();
+
+      res.status(200).json(
+        registration
+      );
+    }
+  );

@@ -7,15 +7,17 @@ import Navbar from "../components/Navbar";
 import { getErrorMessage } from "../utils/errorHandler";
 import { showSuccess } from "../utils/successHandler";
 import TicketCard from "../components/TicketCard";
-
+import SkeletonLoader from "../components/SkeletonLoader";
 function MyTickets() {
 
-  const [ tickets, setTickets, ] = useState([]);
-  const [loading, setLoading] = useState(true);
+const [tickets, setTickets] = useState([]);
+const [loading, setLoading] = useState(true);
+const [currentPage, setCurrentPage] = useState(1);
+const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     fetchTickets();
-  }, []);
+  }, [currentPage]);
 
   const fetchTickets =
     async () => {
@@ -28,11 +30,10 @@ function MyTickets() {
           );
 
         const res =
-          await ticketService.getMyTickets(token);
+          await ticketService.getMyTickets({page: currentPage,limit: 10,},token);
 
-        setTickets(
-          res.data
-        );
+setTickets(res.data.tickets);
+setTotalPages(res.data.totalPages);
 
       } catch (error) {
         alert(getErrorMessage(error));
@@ -42,8 +43,9 @@ function MyTickets() {
 
   }
     };
-    if(loading)
-return <Loader />;
+if (loading) {
+  return <SkeletonLoader count={5} />;
+}
 
   return (
     <>
@@ -67,6 +69,39 @@ tickets.map((ticket) => (
   />
 
 ))
+)}
+{tickets.length > 0 && (
+  <div
+    style={{
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      gap: "15px",
+      marginTop: "30px",
+    }}
+  >
+    <button
+      disabled={currentPage === 1}
+      onClick={() =>
+        setCurrentPage((prev) => prev - 1)
+      }
+    >
+      Previous
+    </button>
+
+    <span>
+      Page {currentPage} of {totalPages}
+    </span>
+
+    <button
+      disabled={currentPage === totalPages}
+      onClick={() =>
+        setCurrentPage((prev) => prev + 1)
+      }
+    >
+      Next
+    </button>
+  </div>
 )}
     </>
   );

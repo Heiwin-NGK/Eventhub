@@ -2,174 +2,227 @@ const Event = require("../models/Event");
 const Registration = require("../models/Registration");
 const mongoose = require("mongoose");
 const getEventStatus = require("../utils/eventStatus");
+const catchAsync = require("../utils/catchAsync");
+const AppError = require("../utils/AppError");
 
-exports.createEvent = async (req, res) => {
-  try {
+exports.createEvent = catchAsync(
+  async (req, res, next) => {
     const event = await Event.create({
       ...req.body,
       organizerId: req.user._id,
     });
-    res.status(201).json(event);
 
-  } catch (error) {
-    res.status(500).json({
-      message: error.message,
+    res.status(201).json(event);
+  }
+);
+exports.getEvents = catchAsync(
+  async (req, res, next) => {
+    const {
+      search = "",
+      type = "All",
+      venue = "",
+      status = "All",
+      sort = "newest",
+    } = req.query;
+
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 9;
+    const skip = (page - 1) * limit;
+if (page < 1 || limit < 1) {
+  return next(
+    new AppError(
+      "Invalid pagination values",
+      400
+    )
+  );
+}
+    let query = {};
+
+    if (search) {
+      query.title = {
+        $regex: search,
+        $options: "i",
+      };
+    }
+
+    if (type !== "All") {
+      query.eventType = type;
+    }
+
+    if (venue) {
+      query.venue = {
+        $regex: venue,
+        $options: "i",
+      };
+    }
+
+    let sortOption = {
+      createdAt: -1,
+    };
+
+    if (sort === "oldest") {
+      sortOption = {
+        createdAt: 1,
+      };
+    }
+
+    const events = await Event.find(query)
+      .populate(
+        "organizerId",
+        "name email"
+      )
+      .sort(sortOption)
+      .skip(skip)
+      .limit(limit);
+
+    const filteredEvents =
+      events.filter((event) => {
+        if (status === "All") {
+          return true;
+        }
+
+        const now = new Date();
+        const start = new Date(
+          event.startDate
+        );
+        const end = new Date(
+          event.endDate
+        );
+
+        let eventStatus =
+          "Upcoming";
+
+        if (now > end) {
+          eventStatus =
+            "Completed";
+        } else if (
+          now >= start &&
+          now <= end
+        ) {
+          eventStatus =
+            "Ongoing";
+        }
+
+        return (
+          eventStatus === status
+        );
+      });
+
+    const totalEvents =
+      await Event.countDocuments(
+        query
+      );
+
+    res.status(200).json({
+      events: filteredEvents,
+      currentPage: page,
+      totalPages: Math.ceil(
+        totalEvents / limit
+      ),
+      totalEvents,
     });
   }
-};
-
-exports.getEvents = async (req, res) => {
-try{
-const {search,type,venue,status,sort,}=req.query;
-const query={};
-if(search){
-query.title={
-$regex:search,
-$options:"i",
-};
-}
-if(type && type!=="All"){
-query.eventType=type;}
-if(venue){
-query.venue={
-$regex:venue,
-$options:"i",
-};}
-if(status && status!=="All"){
-query.status=status;
-}
-let mongoQuery=
-Event.find(query);
-switch(sort){
-
-case "newest":
-mongoQuery=
-mongoQuery.sort({
-createdAt:-1,
-});
-break;
-
-case "oldest":
-mongoQuery=
-mongoQuery.sort({
-createdAt:1,
-});
-break;
-
-case "capacityAsc":
-mongoQuery=
-mongoQuery.sort({
-capacity:1,
-});
-break;
-
-case "capacityDesc":
-mongoQuery=
-mongoQuery.sort({
-capacity:-1,
-});
-break;
-
-default:
-mongoQuery=
-mongoQuery.sort({
-createdAt:-1,
-});
-}
-
-const events = await mongoQuery.populate(
-  "organizerId",
-  "name email role"
 );
-const result = await Promise.all(
-  events.map(async (event) => {
-    const registrationCount = await Registration.countDocuments({
-      eventId: event._id,
-    });
-    const status = getEventStatus(event);
-    return {
-      ...event.toObject(),
-      status,
-      registrationCount,
-      remainingSeats: event.capacity - registrationCount,
-      isFull: registrationCount >= event.capacity,
-    };
-  })
-);
-res.status(200).json(result);
-}catch(error){
-res.status(500).json({
-message:error.message,
-});
-}
-};
-
-exports.getEventById = async (req, res) => {
-  try {
+exports.getEventById = catchAsync(
+  async (req, res, next) => {
     if (
       !mongoose.Types.ObjectId.isValid(
         req.params.id
       )
     ) {
-      return res.status(400).json({
-        message: "Invalid Event ID",
-      });
+      return next(
+        new AppError(
+          "Invalid Event ID",
+          400
+        )
+      );
     }
-const event = await Event.findById(req.params.id).populate(
-  "organizerId",
-  "name email role"
-);
+
+    const event = await Event.findById(
+      req.params.id
+    ).populate(
+      "organizerId",
+      "name email role"
+    );
+
     if (!event) {
-      return res.status(404).json({
-        message: "Event not found",
-      });
+      return next(
+        new AppError(
+          "Event not found",
+          404
+        )
+      );
     }
-const registrationCount = await Registration.countDocuments({
-  eventId: event._id,
-});
 
-const attendeeRegistered = req.user
-  ? await Registration.exists({
-      eventId: event._id,
-      userId: req.user._id,
-    })
-  : false;
+    const registrationCount =
+      await Registration.countDocuments({
+        eventId: event._id,
+      });
 
-const status = getEventStatus(event);
+    const attendeeRegistered = req.user
+      ? await Registration.exists({
+          eventId: event._id,
+          userId: req.user._id,
+        })
+      : false;
 
-res.status(200).json({
-  ...event.toObject(),
-  status,
-  registrationCount,
-  remainingSeats: event.capacity - registrationCount,
-  isFull: registrationCount >= event.capacity,
-  attendeeRegistered: !!attendeeRegistered,
-});
+    const status = getEventStatus(event);
 
-  } catch (error) {
-    res.status(500).json({
-      message: error.message,
+    res.status(200).json({
+      ...event.toObject(),
+      status,
+      registrationCount,
+remainingSeats: Math.max(
+  0,
+  event.capacity - registrationCount
+),
+      isFull:
+        registrationCount >=
+        event.capacity,
+      attendeeRegistered:
+        !!attendeeRegistered,
     });
   }
-};
+);
+exports.updateEvent = catchAsync(
+  async (req, res, next) => {
+    if (
+      !mongoose.Types.ObjectId.isValid(
+        req.params.id
+      )
+    ) {
+      return next(
+        new AppError(
+          "Invalid ID",
+          400
+        )
+      );
+    }
 
-exports.updateEvent = async (req, res) => {
-  try {
-    const event = await Event.findById(req.params.id);
+    const event = await Event.findById(
+      req.params.id
+    );
 
     if (!event) {
-      return res.status(404).json({
-        message: "Event not found",
-      });
+      return next(
+        new AppError(
+          "Event not found",
+          404
+        )
+      );
     }
 
     if (
       req.user.role !== "admin" &&
-      event.organizerId.toString() !== req.user._id.toString()
+      event.organizerId.toString() !==
+        req.user._id.toString()
     ) {
-      return res.status(403).json({
-        message: "You can only edit your own events",
-      });
+      return next(
+        new AppError(
+          "You can only edit your own events",
+          403
+        )
+      );
     }
 
     Object.assign(event, req.body);
@@ -177,43 +230,54 @@ exports.updateEvent = async (req, res) => {
     await event.save();
 
     res.status(200).json(event);
-
-  } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
   }
-};
+);
+exports.deleteEvent = catchAsync(
+  async (req, res, next) => {
+    if (
+      !mongoose.Types.ObjectId.isValid(
+        req.params.id
+      )
+    ) {
+      return next(
+        new AppError(
+          "Invalid ID",
+          400
+        )
+      );
+    }
 
-exports.deleteEvent = async (req, res) => {
-  try {
-    const event = await Event.findById(req.params.id);
+    const event = await Event.findById(
+      req.params.id
+    );
 
     if (!event) {
-      return res.status(404).json({
-        message: "Event not found",
-      });
+      return next(
+        new AppError(
+          "Event not found",
+          404
+        )
+      );
     }
 
     if (
       req.user.role !== "admin" &&
-      event.organizerId.toString() !== req.user._id.toString()
+      event.organizerId.toString() !==
+        req.user._id.toString()
     ) {
-      return res.status(403).json({
-        message: "You can only delete your own events",
-      });
+      return next(
+        new AppError(
+          "You can only delete your own events",
+          403
+        )
+      );
     }
 
     await event.deleteOne();
 
     res.status(200).json({
-      message: "Event deleted successfully",
-    });
-
-  } catch (error) {
-    res.status(500).json({
-      message: error.message,
+      message:
+        "Event deleted successfully",
     });
   }
-};
-
+);

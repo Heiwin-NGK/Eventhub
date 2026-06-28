@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import eventService from "../services/eventService";
 import registrationService from "../services/registrationService";
-import Loader from "../components/Loader";
 import EmptyState from "../components/EmptyState";
 import Navbar from "../components/Navbar";
 import { Link } from "react-router-dom";
@@ -13,38 +12,58 @@ import { AuthContext } from "../context/AuthContext";
 import { ROLES } from "../constants/roles";
 import EventFilters from "../components/EventFilters";
 import EventCard from "../components/EventCard";
-import useDebounce from "../hooks/useDebounce";
 import { ROUTES,getEventDetailsRoute,getEditEventRoute,getAttendeesRoute,} from "../constants/routes";
+import SkeletonLoader from "../components/SkeletonLoader";
 
 function Events() {
 const { user } = useContext(AuthContext);
 const [events, setEvents] = useState([]);
 const [loading, setLoading] = useState(true);
 const [search,setSearch]=useState("");
-const debouncedSearch = useDebounce(search, 500);
 const [type,setType]=useState("All");
 const [venue,setVenue]=useState("");
-const debouncedVenue = useDebounce(venue, 500);
 const [status,setStatus]=useState("All");
 const [sort,setSort]=useState("newest");
-
+const [currentPage, setCurrentPage] = useState(1);
+const [totalPages, setTotalPages] = useState(1);
+const [filters, setFilters] = useState({
+  search: "",
+  type: "All",
+  venue: "",
+  status: "All",
+  sort: "newest",
+});
 useEffect(() => {
   fetchEvents();
-}, [debouncedSearch, type, debouncedVenue, status, sort]);
+}, [currentPage, filters]);
 
 const fetchEvents=async()=>{
 try{
 setLoading(true);
 const token=localStorage.getItem("token");
 const res=await eventService.getEvents(
-{search:debouncedSearch,type,venue:debouncedVenue,status,sort,},token);
-setEvents(res.data);
+{search: filters.search,
+type: filters.type,
+venue: filters.venue,
+status: filters.status,
+sort: filters.sort,page:currentPage,limit:9},token);
+setEvents(res.data.events);
+setTotalPages(res.data.totalPages);
 }catch(error){
 alert(getErrorMessage(error));
 }finally{
 setLoading(false);
 }
 };
+useEffect(() => {
+  setFilters({
+    search: "",
+    type: "All",
+    venue: "",
+    status: "All",
+    sort: "newest",
+  });
+}, []);
 
   const registerEvent = async (
   eventId
@@ -120,9 +139,37 @@ setLoading(false);
 
 }
 };
+const applyFilters = useCallback(() => {
+  setCurrentPage(1);
+
+  setFilters({
+    search,
+    type,
+    venue,
+    status,
+    sort,
+  });
+}, [search, type, venue, status, sort]);
+const clearFilters = useCallback(() => {
+  setSearch("");
+  setType("All");
+  setVenue("");
+  setStatus("All");
+  setSort("newest");
+
+  setCurrentPage(1);
+
+  setFilters({
+    search: "",
+    type: "All",
+    venue: "",
+    status: "All",
+    sort: "newest",
+  });
+}, []);
 
 if (loading)
-  return <Loader />;
+  return <SkeletonLoader count={6} />;
 
   return (
     <>
@@ -144,16 +191,10 @@ setStatus={setStatus}
 
 sort={sort}
 setSort={setSort}
-
-clearFilters={()=>{
-setSearch("");
-setType("All");
-setVenue("");
-setStatus("All");
-setSort("newest");
-}}
-
+applyFilters={applyFilters}
+clearFilters={clearFilters}
 />
+
         <h1>Events</h1>
 
       {events.length === 0 ? (
@@ -162,18 +203,21 @@ setSort("newest");
 
 ) : (
 events.map((event) => {
-console.log("Logged in user:", user);
-console.log("Organizer:", event.organizerId);
-  const canManage =
-    user?.role === ROLES.ADMIN ||
-    (
-      user?.role === ROLES.ORGANIZER &&
-      (
-        event.organizerId === user.id ||
-        event.organizerId?._id === user.id
-      )
-    );
-console.log("Can Manage:", canManage);
+const userId = String(
+  user?._id || user?.id
+);
+
+const organizerId = String(
+  event.organizerId?._id ||
+  event.organizerId
+);
+
+const canManage =
+  user?.role === ROLES.ADMIN ||
+  (
+    user?.role === ROLES.ORGANIZER &&
+    organizerId === userId
+  );
   return (
 <EventCard
   key={event._id}
@@ -251,6 +295,41 @@ console.log("Can Manage:", canManage);
   );
 
 }) )}
+{events.length > 0 && (
+  <div
+    style={{
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      gap: "15px",
+      marginTop: "30px",
+    }}
+  >
+    <button
+      disabled={currentPage === 1}
+      onClick={() =>
+        setCurrentPage((prev) => prev - 1)
+      }
+    >
+      Previous
+    </button>
+
+    <span>
+      Page {currentPage} of {totalPages}
+    </span>
+
+    <button
+      disabled={
+        currentPage === totalPages
+      }
+      onClick={() =>
+        setCurrentPage((prev) => prev + 1)
+      }
+    >
+      Next
+    </button>
+  </div>
+)}
     </div>
     </>
   );

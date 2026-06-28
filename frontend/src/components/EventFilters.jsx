@@ -1,4 +1,5 @@
 import {EVENT_TYPES,EVENT_STATUS,SORT_OPTIONS,} from "../constants/eventFilters";
+import { memo } from "react";
 
 function EventFilters({
 search,
@@ -12,10 +13,16 @@ setStatus,
 sort,
 setSort,
 clearFilters,
+applyFilters
 }) {
 
 return (
-
+<form
+  onSubmit={(e) => {
+    e.preventDefault();
+    applyFilters();
+  }}
+>
 <div className="card">
 
 <input
@@ -77,20 +84,18 @@ value={item.value}
 ))}
 
 </select>
+<button onClick={applyFilters}>
+  Search
+</button>
 
-<button
-type="button"
-onClick={clearFilters}
->
-
-Clear Filters
-
+<button onClick={clearFilters}>
+  Clear
 </button>
 
 </div>
-
+</form>
 );
 
 }
 
-export default EventFilters;
+export default memo(EventFilters);

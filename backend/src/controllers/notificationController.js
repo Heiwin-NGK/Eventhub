@@ -1,9 +1,16 @@
 const Notification = require("../models/Notification");
+const mongoose = require("mongoose");
+
+const catchAsync = require("../utils/catchAsync");
+const AppError = require("../utils/AppError");
 
 exports.createNotification =
-  async (req, res) => {
-    try {
-
+  catchAsync(
+    async (
+      req,
+      res,
+      next
+    ) => {
       const notification =
         await Notification.create(
           req.body
@@ -12,19 +19,16 @@ exports.createNotification =
       res.status(201).json(
         notification
       );
-
-    } catch (error) {
-      res.status(500).json({
-        message:
-          error.message,
-      });
     }
-};
+  );
 
 exports.getMyNotifications =
-  async (req, res) => {
-    try {
-
+  catchAsync(
+    async (
+      req,
+      res,
+      next
+    ) => {
       const notifications =
         await Notification.find({
           userId:
@@ -36,18 +40,28 @@ exports.getMyNotifications =
       res.status(200).json(
         notifications
       );
-
-    } catch (error) {
-      res.status(500).json({
-        message:
-          error.message,
-      });
     }
-  };
+  );
 
-  exports.markAsRead =
-  async (req, res) => {
-    try {
+exports.markAsRead =
+  catchAsync(
+    async (
+      req,
+      res,
+      next
+    ) => {
+      if (
+        !mongoose.Types.ObjectId.isValid(
+          req.params.id
+        )
+      ) {
+        return next(
+          new AppError(
+            "Invalid ID",
+            400
+          )
+        );
+      }
 
       const notification =
         await Notification.findByIdAndUpdate(
@@ -60,14 +74,17 @@ exports.getMyNotifications =
           }
         );
 
+      if (!notification) {
+        return next(
+          new AppError(
+            "Notification not found",
+            404
+          )
+        );
+      }
+
       res.status(200).json(
         notification
       );
-
-    } catch (error) {
-      res.status(500).json({
-        message:
-          error.message,
-      });
     }
-  };
+  );

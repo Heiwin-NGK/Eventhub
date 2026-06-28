@@ -1,194 +1,349 @@
 const Ticket = require("../models/Ticket");
 const Registration = require("../models/Registration");
+const mongoose = require("mongoose");
 
-exports.getMyTickets = async (
-  req,
-  res
-) => {
-  try {
+const catchAsync = require("../utils/catchAsync");
+const AppError = require("../utils/AppError");
+
+exports.getMyTickets = catchAsync(
+  async (req, res, next) => {
+    const page =
+      Number(req.query.page) || 1;
+
+    const limit =
+      Number(req.query.limit) || 10;
+
+    const skip =
+      (page - 1) * limit;
+
+    const totalTickets =
+      await Ticket.countDocuments({
+        userId: req.user._id,
+      });
 
     const tickets =
       await Ticket.find({
         userId: req.user._id,
       })
-        .populate("eventId");
+        .populate("eventId")
+        .sort({
+          createdAt: -1,
+        })
+        .skip(skip)
+        .limit(limit);
 
-    res.status(200).json(tickets);
-
-  } catch (error) {
-    res.status(500).json({
-      message: error.message,
+    res.status(200).json({
+      tickets,
+      currentPage: page,
+      totalPages: Math.ceil(
+        totalTickets / limit
+      ),
+      totalTickets,
     });
   }
-};
-exports.getTicketById = async (req, res) => {
-  try {
+);
 
-    const ticket = await Ticket.findById(req.params.id)
-      .populate({
-        path: "eventId",
-        populate: {
-          path: "organizerId",
-          select: "name email",
-        },
-      })
-      .populate("userId", "name email");
-
-    if (!ticket) {
-      return res.status(404).json({
-        message: "Ticket not found",
-      });
+exports.getTicketById = catchAsync(
+  async (req, res, next) => {
+    if (
+      !mongoose.Types.ObjectId.isValid(
+        req.params.id
+      )
+    ) {
+      return next(
+        new AppError(
+          "Invalid ID",
+          400
+        )
+      );
     }
 
-const registration = await Registration.findOne({
-  userId: ticket.userId._id,
-  eventId: ticket.eventId._id,
-}).populate("checkedInBy", "name email");
+    const ticket =
+      await Ticket.findById(
+        req.params.id
+      )
+        .populate({
+          path: "eventId",
+          populate: {
+            path: "organizerId",
+            select:
+              "name email",
+          },
+        })
+        .populate(
+          "userId",
+          "name email"
+        );
+
+    if (!ticket) {
+      return next(
+        new AppError(
+          "Ticket not found",
+          404
+        )
+      );
+    }
+
+    const registration =
+      await Registration.findOne({
+        userId:
+          ticket.userId._id,
+        eventId:
+          ticket.eventId._id,
+      }).populate(
+        "checkedInBy",
+        "name email"
+      );
 
     res.status(200).json({
       ...ticket.toObject(),
-      registrationStatus: registration?.status || "registered",
-      registrationDate: registration?.createdAt,
-    });
-
-  } catch (error) {
-
-    res.status(500).json({
-      message: error.message,
-    });
-
-  }
-};
-
-exports.verifyTicket = async (req, res) => {
-  try {
-    const ticket = await Ticket.findOne({
-      ticketId: req.params.ticketId,
-    })
-      .populate("userId", "name email")
-      .populate({
-        path: "eventId",
-        populate: {
-          path: "organizerId",
-          select: "name email",
-        },
-      });
-
-    if (!ticket) {
-      return res.status(404).json({
-        valid: false,
-        message: "Ticket not found",
-      });
-    }
-
-const registration = await Registration.findOne({
-  userId: ticket.userId._id,
-  eventId: ticket.eventId._id,
-}).populate("checkedInBy", "name email");
-const registrationCount =
-await Registration.countDocuments({
-    eventId: ticket.eventId._id,
-});
-
-const checkedInCount =
-await Registration.countDocuments({
-    eventId: ticket.eventId._id,
-    status: "checked_in",
-});
-const capacity = ticket.eventId.capacity;
-res.status(200).json({
-    valid: true,
-    checkedIn:
-        registration?.status === "checked_in",
-    registrationStatus:
-        registration?.status || "registered",
-    checkedInAt:
-        registration?.checkedInAt,
-    checkedInBy:
-        registration?.checkedInBy,
-    statistics: {
-        capacity,
-        registered:
-            registrationCount,
-        checkedIn:
-            checkedInCount,
-        remaining:
-            registrationCount - checkedInCount,
-        occupancy:
-            Math.round(
-                (checkedInCount / capacity) * 100
-            ),
-    },
-    ticket,
-});
-  } catch (error) {
-    res.status(500).json({
-      message: error.message,
+      registrationStatus:
+        registration?.status ||
+        "registered",
+      registrationDate:
+        registration?.createdAt,
     });
   }
-};
+);
 
-exports.checkInTicket = async (req, res) => {
-  try {
-    const ticket = await Ticket.findOne({
-      ticketId: req.params.ticketId,
-    });
+exports.verifyTicket = catchAsync(
+  async (req, res, next) => {
+    const ticket =
+      await Ticket.findOne({
+        ticketId:
+          req.params.ticketId,
+      })
+        .populate(
+          "userId",
+          "name email"
+        )
+        .populate({
+          path: "eventId",
+          populate: {
+            path: "organizerId",
+            select:
+              "name email",
+          },
+        });
 
     if (!ticket) {
-      return res.status(404).json({
-        message: "Ticket not found",
-      });
+      return next(
+        new AppError(
+          "Ticket not found",
+          404
+        )
+      );
     }
 
-const registration = await Registration.findOne({
-  userId: ticket.userId._id,
-  eventId: ticket.eventId._id,
-}).populate("checkedInBy", "name email");
+    const registration =
+      await Registration.findOne({
+        userId:
+          ticket.userId._id,
+        eventId:
+          ticket.eventId._id,
+      }).populate(
+        "checkedInBy",
+        "name email"
+      );
 
-    if (!registration) {
-      return res.status(404).json({
-        message: "Registration not found",
-      });
-    }
+    const registrationCount =
+      await Registration.countDocuments(
+        {
+          eventId:
+            ticket.eventId._id,
+        }
+      );
 
-    if (registration.status === "checked_in") {
-      return res.status(400).json({
-        message: "Attendee has already checked in",
-      });
-    }
+    const checkedInCount =
+      await Registration.countDocuments(
+        {
+          eventId:
+            ticket.eventId._id,
+          status:
+            "checked_in",
+        }
+      );
 
-    registration.status = "checked_in";
-    registration.checkedInAt = new Date();
-    registration.checkedInBy = req.user._id;
-
-    await registration.save();
+    const capacity =
+      ticket.eventId.capacity;
 
     res.status(200).json({
-      message: "Check-in successful",
-      registration,
-    });
+      valid: true,
 
-  } catch (error) {
-    res.status(500).json({
-      message: error.message,
+      checkedIn:
+        registration?.status ===
+        "checked_in",
+
+      registrationStatus:
+        registration?.status ||
+        "registered",
+
+      checkedInAt:
+        registration?.checkedInAt,
+
+      checkedInBy:
+        registration?.checkedInBy,
+
+      statistics: {
+        capacity,
+
+        registered:
+          registrationCount,
+
+        checkedIn:
+          checkedInCount,
+
+        remaining:
+          registrationCount -
+          checkedInCount,
+
+        occupancy:
+          Math.round(
+            (checkedInCount /
+              capacity) *
+              100
+          ),
+      },
+
+      ticket,
     });
   }
-};
-exports.getCheckInHistory = async (req, res) => {
-  try {
-    const registrations = await Registration.find({
-      status: "checked_in",
-    })
-      .populate("userId", "name email")
-      .populate("eventId", "title venue")
-      .populate("checkedInBy", "name email")
-      .sort({ checkedInAt: -1 });
+);
 
-    res.status(200).json(registrations);
+exports.checkInTicket =
+  catchAsync(
+    async (
+      req,
+      res,
+      next
+    ) => {
+      const ticket =
+        await Ticket.findOne({
+          ticketId:
+            req.params.ticketId,
+        });
 
-  } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
-  }
-};
+      if (!ticket) {
+        return next(
+          new AppError(
+            "Ticket not found",
+            404
+          )
+        );
+      }
+
+      const registration =
+        await Registration.findOne(
+          {
+            userId:
+              ticket.userId,
+            eventId:
+              ticket.eventId,
+          }
+        );
+
+      if (!registration) {
+        return next(
+          new AppError(
+            "Registration not found",
+            404
+          )
+        );
+      }
+
+      if (
+        registration.status ===
+        "checked_in"
+      ) {
+        return next(
+          new AppError(
+            "Attendee has already checked in",
+            400
+          )
+        );
+      }
+
+      registration.status =
+        "checked_in";
+
+      registration.checkedInAt =
+        new Date();
+
+      registration.checkedInBy =
+        req.user._id;
+
+      await registration.save();
+
+      res.status(200).json({
+        message:
+          "Check-in successful",
+        registration,
+      });
+    }
+  );
+
+exports.getCheckInHistory =
+  catchAsync(
+    async (
+      req,
+      res,
+      next
+    ) => {
+      const page =
+        Number(
+          req.query.page
+        ) || 1;
+
+      const limit =
+        Number(
+          req.query.limit
+        ) || 10;
+
+      const skip =
+        (page - 1) * limit;
+
+      const totalRegistrations =
+        await Registration.countDocuments(
+          {
+            status:
+              "checked_in",
+          }
+        );
+
+      const registrations =
+        await Registration.find({
+          status:
+            "checked_in",
+        })
+          .populate(
+            "userId",
+            "name email"
+          )
+          .populate(
+            "eventId",
+            "title venue"
+          )
+          .populate(
+            "checkedInBy",
+            "name email"
+          )
+          .sort({
+            checkedInAt:
+              -1,
+          })
+          .skip(skip)
+          .limit(limit);
+
+      res.status(200).json({
+        registrations,
+        currentPage:
+          page,
+        totalPages:
+          Math.ceil(
+            totalRegistrations /
+              limit
+          ),
+        totalRegistrations,
+      });
+    }
+  );

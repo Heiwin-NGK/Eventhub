@@ -4,12 +4,14 @@ const Attendance =
 const Ticket =
   require("../models/Ticket");
 
-exports.checkIn = async (
-  req,
-  res
-) => {
-  try {
+const catchAsync =
+  require("../utils/catchAsync");
 
+const AppError =
+  require("../utils/AppError");
+
+exports.checkIn = catchAsync(
+  async (req, res, next) => {
     const ticket =
       await Ticket.findOne({
         ticketId:
@@ -17,10 +19,12 @@ exports.checkIn = async (
       });
 
     if (!ticket) {
-      return res.status(404).json({
-        message:
+      return next(
+        new AppError(
           "Invalid Ticket",
-      });
+          404
+        )
+      );
     }
 
     const attendance =
@@ -38,21 +42,11 @@ exports.checkIn = async (
     res.status(201).json(
       attendance
     );
-
-  } catch (error) {
-    res.status(500).json({
-      message:
-        error.message,
-    });
   }
-};
+);
 
-exports.checkOut = async (
-  req,
-  res
-) => {
-  try {
-
+exports.checkOut = catchAsync(
+  async (req, res, next) => {
     const ticket =
       await Ticket.findOne({
         ticketId:
@@ -60,10 +54,12 @@ exports.checkOut = async (
       });
 
     if (!ticket) {
-      return res.status(404).json({
-        message:
+      return next(
+        new AppError(
           "Invalid Ticket",
-      });
+          404
+        )
+      );
     }
 
     const attendance =
@@ -81,19 +77,16 @@ exports.checkOut = async (
     res.status(201).json(
       attendance
     );
-
-  } catch (error) {
-    res.status(500).json({
-      message:
-        error.message,
-    });
   }
-};
+);
 
 exports.getAttendanceHistory =
-  async (req, res) => {
-    try {
-
+  catchAsync(
+    async (
+      req,
+      res,
+      next
+    ) => {
       const records =
         await Attendance.find({
           userId:
@@ -105,11 +98,5 @@ exports.getAttendanceHistory =
       res.status(200).json(
         records
       );
-
-    } catch (error) {
-      res.status(500).json({
-        message:
-          error.message,
-      });
     }
-  };
+  );

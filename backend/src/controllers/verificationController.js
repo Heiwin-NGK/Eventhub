@@ -1,9 +1,18 @@
 const Ticket = require("../models/Ticket");
 
-exports.verifyTicket =
-  async (req, res) => {
-    try {
+const catchAsync =
+  require("../utils/catchAsync");
 
+const AppError =
+  require("../utils/AppError");
+
+exports.verifyTicket =
+  catchAsync(
+    async (
+      req,
+      res,
+      next
+    ) => {
       const ticket =
         await Ticket.findOne({
           ticketId:
@@ -11,10 +20,12 @@ exports.verifyTicket =
         });
 
       if (!ticket) {
-        return res.status(404).json({
-          message:
+        return next(
+          new AppError(
             "Invalid Ticket",
-        });
+            404
+          )
+        );
       }
 
       res.status(200).json({
@@ -23,11 +34,5 @@ exports.verifyTicket =
 
         ticket,
       });
-
-    } catch (error) {
-      res.status(500).json({
-        message:
-          error.message,
-      });
     }
-  };
+  );

@@ -6,6 +6,7 @@ import { showSuccess } from "../utils/successHandler";
 import reportService from "../services/reportService";
 import Loader from "../components/Loader";
 import EmptyState from "../components/EmptyState";
+import SkeletonLoader from "../components/SkeletonLoader";
 
 function Reports() {
   const [eventId, setEventId] =
@@ -94,7 +95,9 @@ function Reports() {
 setLoading(false);
 
 }
-  };
+  
+  if (loading)
+  return <SkeletonLoader count={4} />;};
 
   return (
     <>

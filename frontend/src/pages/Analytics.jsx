@@ -6,7 +6,7 @@ import { showSuccess } from "../utils/successHandler";
 import analyticsService from "../services/analyticsService";
 import Loader from "../components/Loader";
 import EmptyState from "../components/EmptyState";
-
+import SkeletonLoader from "../components/SkeletonLoader";
 function Analytics() {
 
   const [stats, setStats] =
@@ -44,8 +44,8 @@ function Analytics() {
   }
     };
 
-  if(loading)
-return <h2>Loading Analytics...</h2>;
+if (loading)
+  return <SkeletonLoader count={4} />;
 
 if (!stats)
 return <div className="card">

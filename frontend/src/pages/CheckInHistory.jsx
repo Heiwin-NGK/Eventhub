@@ -4,16 +4,19 @@ import Loader from "../components/Loader";
 import EmptyState from "../components/EmptyState";
 import ticketService from "../services/ticketService";
 import "../styles/checkInHistory.css";
+import SkeletonLoader from "../components/SkeletonLoader";
 
 function CheckInHistory() {
   const [history, setHistory] = useState([]);
   const [filteredHistory, setFilteredHistory] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     fetchHistory();
-  }, []);
+  }, [currentPage]);
 
   useEffect(() => {
     const value = search.toLowerCase();
@@ -31,10 +34,17 @@ function CheckInHistory() {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await ticketService.getCheckInHistory(token);
+const res = await ticketService.getCheckInHistory(
+  {
+    page: currentPage,
+    limit: 10,
+  },
+  token
+);
 
-      setHistory(res.data);
-      setFilteredHistory(res.data);
+setHistory(res.data.registrations);
+setFilteredHistory(res.data.registrations);
+setTotalPages(res.data.totalPages);
 
     } catch (error) {
       alert(error.response?.data?.message || "Failed to load history");
@@ -43,7 +53,9 @@ function CheckInHistory() {
     }
   };
 
-  if (loading) return <Loader />;
+if (loading) {
+  return <SkeletonLoader count={8} />;
+}
 
   return (
     <>
@@ -135,6 +147,39 @@ function CheckInHistory() {
 
           </table>
         )}
+{history.length > 0 && (
+  <div
+    style={{
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      gap: "1rem",
+      marginTop: "20px",
+    }}
+  >
+    <button
+      disabled={currentPage === 1}
+      onClick={() =>
+        setCurrentPage((prev) => prev - 1)
+      }
+    >
+      Previous
+    </button>
+
+    <span>
+      Page {currentPage} of {totalPages}
+    </span>
+
+    <button
+      disabled={currentPage === totalPages}
+      onClick={() =>
+        setCurrentPage((prev) => prev + 1)
+      }
+    >
+      Next
+    </button>
+  </div>
+)}
 
       </div>
     </>

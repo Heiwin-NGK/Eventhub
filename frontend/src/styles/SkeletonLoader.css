@@ -1,0 +1,46 @@
+.skeleton-container {
+  display: grid;
+  gap: 1rem;
+}
+
+.skeleton-card {
+  padding: 1rem;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.skeleton-title,
+.skeleton-line,
+.skeleton-button {
+  background: #e0e0e0;
+  border-radius: 4px;
+  margin-bottom: 0.75rem;
+  animation: pulse 1.5s infinite;
+}
+
+.skeleton-title {
+  height: 24px;
+  width: 60%;
+}
+
+.skeleton-line {
+  height: 16px;
+  width: 100%;
+}
+
+.skeleton-button {
+  height: 36px;
+  width: 120px;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: .6;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: .6;
+  }
+}

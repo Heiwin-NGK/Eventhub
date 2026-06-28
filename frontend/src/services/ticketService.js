@@ -2,13 +2,17 @@ import axios from "../api/axios";
 
 const ticketService = {
 
-  getMyTickets: async (token) => {
-    return await axios.get("/tickets/my", {
+getMyTickets: async ( params,token) => {
+  return await axios.get(
+    "/tickets/my",
+    {
+      params,
       headers: {
         Authorization: `Bearer ${token}`,
       },
-    });
-  },
+    }
+  );
+},
 getTicketById: async (id, token) => {
   return await axios.get(`/tickets/${id}`, {
     headers: {
@@ -37,17 +41,17 @@ checkInTicket: async (ticketId, token) => {
     }
   );
 },
-getCheckInHistory: async (token) => {
+getCheckInHistory: async (params, token) => {
   return await axios.get(
     "/tickets/history",
     {
+      params,
       headers: {
         Authorization: `Bearer ${token}`,
       },
     }
   );
 },
-
 };
 
 export default ticketService;

@@ -101,7 +101,7 @@ function EventAttendees() {
   };
 
 if (loading) {
-  return <Loader />;
+  return <SkeletonLoader count={6} />;
 }
 
 if (!event) {
