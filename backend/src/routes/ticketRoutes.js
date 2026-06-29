@@ -49,7 +49,7 @@ router.get("/verify/:ticketId", protect, verifyTicket);
 /**
  * @swagger
  * /tickets/checkin/{ticketId}:
- *   post:
+ *   patch:
  *     summary: Check in attendee
  *     tags:
  *       - Tickets
@@ -68,7 +68,7 @@ router.get("/verify/:ticketId", protect, verifyTicket);
 router.patch("/checkin/:ticketId", protect, checkInTicket);
 /**
  * @swagger
- * /tickets/checkins:
+ * /tickets/history:
  *   get:
  *     summary: Check-in history
  *     tags:

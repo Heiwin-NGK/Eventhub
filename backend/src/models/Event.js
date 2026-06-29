@@ -55,6 +55,6 @@ eventSchema.index({ title: 1 });
 eventSchema.index({ eventType: 1 });
 eventSchema.index({ venue: 1 });
 eventSchema.index({ startDate: 1 });
-eventSchema.index({ organizerId: 1 });
+eventSchema.index({ organizerId: 1, startDate: -1, });
 
 module.exports = mongoose.model("Event", eventSchema);

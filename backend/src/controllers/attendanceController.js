@@ -17,7 +17,7 @@ exports.checkIn = catchAsync(
         ticketId:
           req.params.ticketId,
       });
-
+console.log(ticket.userId);
     if (!ticket) {
       return next(
         new AppError(
@@ -27,16 +27,31 @@ exports.checkIn = catchAsync(
       );
     }
 
+    const lastRecord =
+      await Attendance.findOne({
+        userId: ticket.userId,
+        eventId: ticket.eventId,
+      }).sort({ createdAt: -1 });
+
+    if (
+      lastRecord &&
+      lastRecord.action === "entry"
+    ) {
+      return next(
+        new AppError(
+          "Already checked in",
+          400
+        )
+      );
+    }
+
     const attendance =
       await Attendance.create({
         eventId:
           ticket.eventId,
-
         userId:
           ticket.userId,
-
-        action:
-          "entry",
+        action: "entry",
       });
 
     res.status(201).json(
@@ -44,7 +59,6 @@ exports.checkIn = catchAsync(
     );
   }
 );
-
 exports.checkOut = catchAsync(
   async (req, res, next) => {
     const ticket =
@@ -62,16 +76,31 @@ exports.checkOut = catchAsync(
       );
     }
 
+    const lastRecord =
+      await Attendance.findOne({
+        userId: ticket.userId,
+        eventId: ticket.eventId,
+      }).sort({ createdAt: -1 });
+
+    if (
+      !lastRecord ||
+      lastRecord.action === "exit"
+    ) {
+      return next(
+        new AppError(
+          "User is not checked in",
+          400
+        )
+      );
+    }
+
     const attendance =
       await Attendance.create({
         eventId:
           ticket.eventId,
-
         userId:
           ticket.userId,
-
-        action:
-          "exit",
+        action: "exit",
       });
 
     res.status(201).json(
@@ -79,7 +108,6 @@ exports.checkOut = catchAsync(
     );
   }
 );
-
 exports.getAttendanceHistory =
   catchAsync(
     async (
@@ -94,7 +122,7 @@ exports.getAttendanceHistory =
         }).populate(
           "eventId"
         );
-
+console.log(req.user._id);
       res.status(200).json(
         records
       );

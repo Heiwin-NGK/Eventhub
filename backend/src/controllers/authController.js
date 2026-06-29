@@ -7,12 +7,21 @@ const AppError = require("../utils/AppError");
 
 exports.registerUser = catchAsync(
   async (req, res, next) => {
-    const {
-      name,
-      email,
-      password,
-    } = req.body;
+const { name, email, password } =
+  req.body;
 
+if (
+  !name ||
+  !email ||
+  !password
+) {
+  return next(
+    new AppError(
+      "Please provide name, email and password",
+      400
+    )
+  );
+}
     const existingUser =
       await User.findOne({
         email,
@@ -61,6 +70,14 @@ exports.loginUser = catchAsync(
       email,
       password,
     } = req.body;
+if (!email || !password) {
+  return next(
+    new AppError(
+      "Please provide email and password",
+      400
+    )
+  );
+}
 
     const user =
       await User.findOne({
