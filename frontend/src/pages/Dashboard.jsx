@@ -6,7 +6,7 @@ function Dashboard() {
       <Navbar />
 
       <div className="card">
-        <h1>EventHub Dashboard</h1>
+        <h1>EventHub</h1>
       </div>
 
       <div className="card">
